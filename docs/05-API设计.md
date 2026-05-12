@@ -6,11 +6,17 @@
 
 **Base URL:** `/api/v1`
 
-**认证方式:** Bearer Token (Sa-Token)
+**认证方式:** 桌面端 Windows 用户识别 + 服务端会话令牌
+
+> **认证流程：**
+> 1. 应用启动时调用 `/api/v1/auth/desktop/verify` 验证 Windows 用户
+> 2. 验证成功后，后端返回 `accessToken`
+> 3. 后续 API 请求使用 `Authorization: Bearer {accessToken}`
+> 4. 后端使用 Sa-Token 管理桌面端认证后的会话 Token
 
 **统一请求头:**
 ```
-Authorization: Bearer {token}
+Authorization: Bearer {accessToken}
 Content-Type: application/json
 ```
 
@@ -62,7 +68,82 @@ Content-Type: application/json
 
 ---
 
-## 二、Memo 接口
+## 二、身份认证接口
+
+### 2.1 桌面端身份校验
+
+**接口:** `POST /api/v1/auth/desktop/verify`
+
+**接口说明:** 桌面端启动时调用，验证 Windows 用户是否为企业员工并获取会话凭证。
+
+**请求参数:**
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| username | string | 是 | Windows 用户名 |
+| domain | string | 否 | Windows 域信息 |
+| computerName | string | 是 | 计算机名称 |
+| deviceId | string | 是 | 客户端设备标识 |
+| os | string | 是 | 操作系统 |
+| osVersion | string | 是 | 操作系统版本 |
+| appVersion | string | 是 | 应用版本 |
+
+**请求示例:**
+```json
+{
+  "username": "evan.zhao",
+  "domain": "COMPANY",
+  "computerName": "CN-SH-001",
+  "deviceId": "client-device-id",
+  "os": "Windows",
+  "osVersion": "Windows 11",
+  "appVersion": "0.1.0"
+}
+```
+
+**响应参数:**
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| userId | long | 是 | 用户 ID |
+| employeeNo | string | 是 | 员工工号 |
+| displayName | string | 是 | 显示名称 |
+| departmentName | string | 是 | 部门名称 |
+| permissions | array | 是 | 权限列表 |
+| accessToken | string | 是 | 服务端会话令牌 |
+
+**响应示例:**
+```json
+{
+  "code": 200,
+  "message": "success",
+  "data": {
+    "userId": 10001,
+    "employeeNo": "E10001",
+    "displayName": "Evan Zhao",
+    "departmentName": "IT Department",
+    "permissions": ["memo:read", "memo:write"],
+    "accessToken": "server-issued-token"
+  }
+}
+```
+
+**错误响应:**
+
+| code | 说明 |
+|------|------|
+| 401 | 当前 Windows 用户未开通 UniComm 权限 |
+| 403 | 用户已被禁用 |
+| 500 | 认证服务异常 |
+
+**注意事项:**
+- 用户身份必须以后端校验结果为准
+- 前端读取到的 Windows 用户信息只能作为身份线索，不能完全信任
+- 设备信息用于安全审计和未来设备绑定功能
+
+---
+
+## 三、Memo 接口
 
 ### 2.1 分页查询 Memo
 
