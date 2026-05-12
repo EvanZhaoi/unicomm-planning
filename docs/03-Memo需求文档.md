@@ -373,5 +373,7 @@ Memo N:M Tag（通过中间表）
 
 ### 8.3 兼容性
 
-- 支持 Chrome/Firefox/Safari/Edge 最新两个版本
+- **Windows** 为第一优先级
+- 后续支持 macOS
+- Linux 暂不作为第一优先级
 - 响应式布局（最小宽度 1024px）
