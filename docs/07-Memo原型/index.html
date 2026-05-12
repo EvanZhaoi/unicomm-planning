@@ -3,559 +3,864 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>UniComm Memo</title>
+  <title>UniComm - 企业桌面协作平台</title>
   <!--
-    注意：此为静态原型，用于演示和评审。
-    正式桌面端项目不应依赖外部 CDN，
-    所有资源应本地打包以支持离线环境。
+    静态原型演示文件
+    正式桌面端项目不应依赖外部 CDN
+    所有资源应本地打包以支持离线环境
   -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    * { box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-
-    /* 自定义滚动条 */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #1a1a2e;
+      color: #e4e4e7;
+      height: 100vh;
+      overflow: hidden;
+    }
 
     /* 窗口标题栏 */
-    .titlebar { height: 32px; background: #1f2937; -webkit-app-region: drag; }
-    .titlebar-button { -webkit-app-region: no-drag; }
-
-    /* 分组拖拽提示 */
-    .group-item:hover .drag-handle { opacity: 1; }
-    .drag-handle { opacity: 0; transition: opacity 0.2s; }
-
-    /* Markdown 样式 */
-    .markdown-body { color: #374151; line-height: 1.6; }
-    .markdown-body h1 { font-size: 1.5em; font-weight: 700; margin: 0.5em 0; }
-    .markdown-body h2 { font-size: 1.25em; font-weight: 600; margin: 0.5em 0; }
-    .markdown-body h3 { font-size: 1.1em; font-weight: 600; margin: 0.5em 0; }
-    .markdown-body ul { list-style: disc; padding-left: 1.5em; margin: 0.5em 0; }
-    .markdown-body ol { list-style: decimal; padding-left: 1.5em; margin: 0.5em 0; }
-    .markdown-body blockquote { border-left: 3px solid #d1d5db; padding-left: 1em; color: #6b7280; margin: 0.5em 0; }
-    .markdown-body code { background: #f3f4f6; padding: 0.125em 0.25em; border-radius: 4px; font-size: 0.9em; }
-    .markdown-body pre { background: #f3f4f6; padding: 1em; border-radius: 8px; overflow-x: auto; margin: 0.5em 0; }
-    .markdown-body pre code { background: transparent; padding: 0; }
-    .markdown-body input[type="checkbox"] { margin-right: 0.5em; }
-
-    /* 选中样式 */
-    .memo-item.selected { background: #eff6ff; border-color: #2563eb; }
-    .group-item.selected { background: #eff6ff; }
-
-    /* 状态指示器 */
-    .status-dot { width: 8px; height: 8px; border-radius: 50%; }
-    .status-dot.online { background: #22c55e; }
-    .status-dot.syncing { background: #eab308; animation: pulse 1s infinite; }
-    .status-dot.offline { background: #ef4444; }
-
-    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-
-    /* 右键菜单 */
-    .context-menu {
-      position: fixed;
-      background: white;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-      padding: 4px 0;
-      min-width: 160px;
-      z-index: 1000;
+    .titlebar {
+      height: 36px;
+      background: #16162a;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 8px;
+      -webkit-app-region: drag;
+      user-select: none;
     }
-    .context-menu-item {
-      padding: 8px 12px;
-      cursor: pointer;
+    .titlebar-title {
       display: flex;
       align-items: center;
       gap: 8px;
+      font-size: 12px;
+      color: #a1a1aa;
+    }
+    .titlebar-controls {
+      display: flex;
+      -webkit-app-region: no-drag;
+    }
+    .titlebar-btn {
+      width: 46px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #71717a;
+      transition: background 0.15s, color 0.15s;
+    }
+    .titlebar-btn:hover { background: #2727a8; color: #fff; }
+    .titlebar-btn.close:hover { background: #dc2626; color: #fff; }
+
+    /* 应用主布局 */
+    .app-layout { display: flex; height: calc(100vh - 36px); }
+
+    /* 侧边栏 */
+    .sidebar {
+      width: 220px;
+      background: #16162a;
+      border-right: 1px solid #27272a;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+    .sidebar-header { padding: 12px 16px; border-bottom: 1px solid #27272a; }
+    .sidebar-nav { flex: 1; overflow-y: auto; padding: 8px; }
+    .nav-section { margin-bottom: 16px; }
+    .nav-section-title {
+      font-size: 10px;
+      font-weight: 600;
+      color: #52525b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 8px 12px 4px;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.15s;
+      font-size: 13px;
+      color: #a1a1aa;
+    }
+    .nav-item:hover { background: #27272a; color: #e4e4e7; }
+    .nav-item.active { background: #2727a8; color: #fff; }
+    .nav-item-icon { width: 16px; display: flex; align-items: center; justify-content: center; }
+    .nav-item-badge {
+      margin-left: auto;
+      font-size: 10px;
+      background: #27272a;
+      color: #71717a;
+      padding: 2px 6px;
+      border-radius: 10px;
+    }
+    .nav-item.active .nav-item-badge { background: rgba(255,255,255,0.2); color: #fff; }
+
+    /* 状态筛选 Tabs */
+    .status-tabs {
+      display: flex;
+      gap: 4px;
+      padding: 4px;
+      background: #1a1a2e;
+      border-radius: 6px;
+      margin: 8px 12px;
+    }
+    .status-tab {
+      flex: 1;
+      padding: 6px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s;
+      color: #71717a;
+    }
+    .status-tab:hover { color: #e4e4e7; }
+    .status-tab.active { background: #2727a8; color: #fff; }
+    .status-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      margin-right: 4px;
+    }
+    .status-dot.normal { background: #22c55e; }
+    .status-dot.todo { background: #eab308; }
+    .status-dot.done { background: #3b82f6; }
+
+    /* 分组列表 */
+    .group-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.15s;
+      font-size: 13px;
+      color: #a1a1aa;
+    }
+    .group-item:hover { background: #27272a; color: #e4e4e7; }
+    .group-item.active { background: #2727a8; color: #fff; }
+    .group-item-icon { font-size: 12px; }
+    .group-item-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .group-item-count { font-size: 10px; color: #52525b; }
+    .group-item.active .group-item-count { color: rgba(255,255,255,0.6); }
+    .group-item-actions { display: none; gap: 2px; }
+    .group-item:hover .group-item-actions { display: flex; }
+    .group-item:hover .group-item-count { display: none; }
+    .group-action-btn {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      font-size: 10px;
+      color: #71717a;
+      transition: all 0.15s;
+    }
+    .group-action-btn:hover { background: #3f3f46; color: #e4e4e7; }
+    .group-action-btn.delete:hover { background: #dc2626; color: #fff; }
+    .drag-hint {
+      font-size: 10px;
+      color: #52525b;
+      padding: 4px 12px;
+      font-style: italic;
+    }
+
+    /* 侧边栏底部 */
+    .sidebar-footer { padding: 12px; border-top: 1px solid #27272a; }
+    .connection-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: #71717a;
+      margin-bottom: 8px;
+    }
+    .connection-dot { width: 6px; height: 6px; border-radius: 50%; }
+    .connection-dot.online { background: #22c55e; }
+    .connection-dot.offline { background: #ef4444; }
+    .connection-dot.syncing { background: #eab308; animation: pulse 1s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+    /* 主内容区 */
+    .main-content { flex: 1; display: flex; background: #1a1a2e; overflow: hidden; }
+
+    /* Memo 列表 */
+    .memo-list {
+      width: 280px;
+      background: #1e1e32;
+      border-right: 1px solid #27272a;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+    .memo-list-header { padding: 12px; border-bottom: 1px solid #27272a; }
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #27272a;
+      border-radius: 6px;
+      padding: 8px 12px;
+    }
+    .search-box input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #e4e4e7;
       font-size: 13px;
     }
-    .context-menu-item:hover { background: #f3f4f6; }
-    .context-menu-item.danger { color: #ef4444; }
-    .context-menu-separator { height: 1px; background: #e5e7eb; margin: 4px 0; }
+    .search-box input::placeholder { color: #52525b; }
+    .search-box i { color: #52525b; font-size: 12px; }
 
-    /* 自动保存提示 */
-    .autosave-indicator { font-size: 11px; color: #9ca3af; }
-    .autosave-indicator.saving { color: #eab308; }
-    .autosave-indicator.saved { color: #22c55e; }
+    /* 标签筛选条 */
+    .tag-filter-bar {
+      display: flex;
+      gap: 4px;
+      padding: 8px 12px 0;
+      flex-wrap: wrap;
+    }
+    .tag-chip {
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 10px;
+      background: #27272a;
+      color: #71717a;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .tag-chip:hover { background: #3f3f46; color: #e4e4e7; }
+    .tag-chip.active { background: #2727a8; color: #fff; }
+
+    /* 新建按钮 */
+    .new-memo-btn {
+      margin: 12px;
+      padding: 10px;
+      background: #2727a8;
+      color: #fff;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background 0.15s;
+    }
+    .new-memo-btn:hover { background: #3730a3; }
+
+    /* Memo 列表 */
+    .memo-items { flex: 1; overflow-y: auto; }
+    .memo-item {
+      padding: 12px;
+      border-bottom: 1px solid #27272a;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .memo-item:hover { background: #27272a; }
+    .memo-item.active { background: #27272a; border-left: 2px solid #2727a8; }
+    .memo-item-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+      font-size: 11px;
+      color: #71717a;
+    }
+    .memo-item-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: #e4e4e7;
+      margin-bottom: 4px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .memo-item-preview {
+      font-size: 12px;
+      color: #52525b;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      line-height: 1.4;
+    }
+    .memo-item-footer {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 6px;
+      font-size: 10px;
+      color: #52525b;
+    }
+    .memo-item-tags { flex: 1; }
+    .memo-item-tag {
+      background: #27272a;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-right: 4px;
+    }
+
+    /* 编辑器 */
+    .editor {
+      flex: 1;
+      background: #1e1e32;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .editor-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 16px;
+      border-bottom: 1px solid #27272a;
+      background: #1e1e32;
+    }
+    .editor-toolbar-btn {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      color: #71717a;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-size: 12px;
+    }
+    .editor-toolbar-btn:hover { background: #27272a; color: #e4e4e7; }
+    .editor-toolbar-btn.active { background: #2727a8; color: #fff; }
+    .editor-toolbar-separator {
+      width: 1px;
+      height: 20px;
+      background: #27272a;
+      margin: 0 4px;
+    }
+    .editor-tabs {
+      display: flex;
+      gap: 4px;
+      margin-left: auto;
+    }
+    .editor-tab {
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-size: 11px;
+      color: #71717a;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .editor-tab:hover { background: #27272a; color: #e4e4e7; }
+    .editor-tab.active { background: #2727a8; color: #fff; }
+
+    /* 编辑器头部 */
+    .editor-header {
+      padding: 16px 24px;
+      border-bottom: 1px solid #27272a;
+    }
+    .editor-title-input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-size: 24px;
+      font-weight: 600;
+      color: #e4e4e7;
+    }
+    .editor-title-input::placeholder { color: #3f3f46; }
+    .editor-meta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 8px;
+      font-size: 12px;
+      color: #52525b;
+    }
+    .editor-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .editor-meta-item select {
+      background: transparent;
+      border: none;
+      color: #71717a;
+      cursor: pointer;
+      outline: none;
+    }
+    .editor-meta-item select:hover { color: #e4e4e7; }
+
+    /* 编辑器内容 */
+    .editor-content {
+      flex: 1;
+      padding: 16px 24px;
+      overflow-y: auto;
+    }
+    .editor-textarea {
+      width: 100%;
+      height: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      resize: none;
+      font-size: 14px;
+      line-height: 1.8;
+      color: #d4d4d8;
+      font-family: 'SF Mono', 'Consolas', monospace;
+    }
+    .editor-textarea::placeholder { color: #3f3f46; }
+
+    /* Markdown 预览 */
+    .markdown-preview { font-size: 14px; line-height: 1.8; color: #d4d4d8; }
+    .markdown-preview h1 { font-size: 20px; font-weight: 600; margin: 16px 0 8px; color: #fff; }
+    .markdown-preview h2 { font-size: 16px; font-weight: 600; margin: 14px 0 6px; color: #e4e4e7; }
+    .markdown-preview h3 { font-size: 14px; font-weight: 600; margin: 12px 0 4px; color: #d4d4d8; }
+    .markdown-preview p { margin: 8px 0; }
+    .markdown-preview ul, .markdown-preview ol { padding-left: 20px; margin: 8px 0; }
+    .markdown-preview li { margin: 4px 0; }
+    .markdown-preview blockquote {
+      border-left: 3px solid #2727a8;
+      padding-left: 12px;
+      margin: 12px 0;
+      color: #71717a;
+    }
+    .markdown-preview code {
+      background: #27272a;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'SF Mono', 'Consolas', monospace;
+      font-size: 13px;
+    }
+    .markdown-preview pre {
+      background: #27272a;
+      padding: 12px;
+      border-radius: 6px;
+      overflow-x: auto;
+      margin: 12px 0;
+    }
+    .markdown-preview pre code { background: transparent; padding: 0; }
+    .markdown-preview input[type="checkbox"] { margin-right: 6px; }
+    .markdown-preview hr { border: none; border-top: 1px solid #27272a; margin: 16px 0; }
+
+    /* 编辑器底部状态栏 */
+    .editor-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 16px;
+      border-top: 1px solid #27272a;
+      background: #1a1a2e;
+      font-size: 11px;
+      color: #52525b;
+    }
+    .editor-footer-left { display: flex; align-items: center; gap: 12px; }
+    .editor-footer-right { display: flex; align-items: center; gap: 8px; }
+    .autosave-status { display: flex; align-items: center; gap: 4px; }
+    .autosave-status.saved { color: #22c55e; }
+    .autosave-status.saving { color: #eab308; }
+    .autosave-status.error { color: #ef4444; }
+
+    /* 快捷键提示 */
+    .shortcut-hint {
+      font-size: 10px;
+      color: #3f3f46;
+      background: #27272a;
+      padding: 2px 4px;
+      border-radius: 2px;
+      font-family: 'SF Mono', 'Consolas', monospace;
+    }
+
+    /* 未来能力预留 */
+    .future-capabilities { padding: 8px 12px; border-top: 1px solid #27272a; }
+    .future-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.15s;
+      font-size: 12px;
+      color: #52525b;
+    }
+    .future-item:hover { background: #27272a; color: #71717a; }
   </style>
 </head>
-<body class="bg-gray-100 h-screen overflow-hidden flex flex-col">
-
-  <!-- 窗口标题栏（桌面端感） -->
-  <div class="titlebar flex items-center justify-between px-3">
-    <div class="flex items-center gap-2 text-white text-xs">
-      <span class="w-5 h-5 bg-blue-600 rounded flex items-center justify-center text-white text-xs font-bold">U</span>
-      <span class="font-medium">UniComm Memo</span>
+<body>
+  <!-- 窗口标题栏 -->
+  <div class="titlebar">
+    <div class="titlebar-title">
+      <div class="flex items-center gap-2">
+        <div class="w-5 h-5 bg-blue-600 rounded flex items-center justify-center text-white text-xs font-bold">U</div>
+        <span class="font-medium text-xs">UniComm</span>
+      </div>
     </div>
-    <div class="flex items-center gap-1">
-      <button class="titlebar-button w-10 h-8 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700">
-        <i class="fas fa-minus text-xs"></i>
-      </button>
-      <button class="titlebar-button w-10 h-8 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700">
-        <i class="far fa-square text-xs"></i>
-      </button>
-      <button class="titlebar-button w-10 h-8 flex items-center justify-center text-gray-400 hover:text-red-400 hover:bg-gray-700">
-        <i class="fas fa-times text-xs"></i>
-      </button>
+    <div class="titlebar-controls">
+      <div class="titlebar-btn" title="最小化"><i class="fas fa-minus text-xs"></i></div>
+      <div class="titlebar-btn" title="最大化"><i class="far fa-square text-xs"></i></div>
+      <div class="titlebar-btn close" title="关闭"><i class="fas fa-times text-xs"></i></div>
     </div>
   </div>
 
-  <!-- 主内容区 -->
-  <div class="flex flex-1 overflow-hidden">
-
+  <!-- 应用主布局 -->
+  <div class="app-layout">
     <!-- 侧边栏 -->
-    <aside class="w-60 bg-gray-50 border-r border-gray-200 flex flex-col">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-medium">E</div>
+          <div>
+            <div class="text-sm font-medium text-gray-200">Evan</div>
+            <div class="text-xs text-gray-500">企业用户</div>
+          </div>
+        </div>
+      </div>
 
-      <!-- 导航 -->
-      <nav class="flex-1 overflow-y-auto p-2">
-
-        <!-- 全部 Memo（带计数） -->
-        <div class="px-3 py-2 rounded-lg hover:bg-gray-200 cursor-pointer flex items-center justify-between text-gray-700">
-          <span class="flex items-center gap-2">
-            <i class="fas fa-sticky-note text-gray-400"></i>
-            <span>全部 Memo</span>
-          </span>
-          <span class="text-xs text-gray-400 bg-gray-200 px-1.5 py-0.5 rounded">30</span>
+      <nav class="sidebar-nav">
+        <!-- 主导航 -->
+        <div class="nav-section">
+          <div class="nav-section-title">导航</div>
+          <div class="nav-item active">
+            <div class="nav-item-icon"><i class="fas fa-sticky-note"></i></div>
+            <span>Memo</span>
+          </div>
+          <div class="nav-item">
+            <div class="nav-item-icon"><i class="fas fa-bell"></i></div>
+            <span>通知</span>
+            <span class="nav-item-badge">3</span>
+          </div>
+          <div class="nav-item">
+            <div class="nav-item-icon"><i class="fas fa-robot"></i></div>
+            <span>AI 助手</span>
+            <span class="nav-item-badge" style="background: #2727a8; color: #fff;">新</span>
+          </div>
         </div>
 
-        <!-- 我的收藏 -->
-        <div class="px-3 py-2 rounded-lg hover:bg-gray-200 cursor-pointer flex items-center justify-between text-gray-700">
-          <span class="flex items-center gap-2">
-            <i class="fas fa-star text-yellow-500"></i>
+        <!-- 快速筛选 -->
+        <div class="nav-section">
+          <div class="nav-section-title">快速筛选</div>
+          <div class="nav-item">
+            <div class="nav-item-icon"><i class="fas fa-star text-yellow-500"></i></div>
             <span>我的收藏</span>
-          </span>
-          <span class="text-xs text-gray-400 bg-gray-200 px-1.5 py-0.5 rounded">5</span>
-        </div>
-
-        <!-- 已归档 -->
-        <div class="px-3 py-2 rounded-lg hover:bg-gray-200 cursor-pointer flex items-center justify-between text-gray-700">
-          <span class="flex items-center gap-2">
-            <i class="fas fa-archive text-gray-400"></i>
+            <span class="nav-item-badge">5</span>
+          </div>
+          <div class="nav-item">
+            <div class="nav-item-icon"><i class="fas fa-archive text-gray-500"></i></div>
             <span>已归档</span>
-          </span>
-          <span class="text-xs text-gray-400 bg-gray-200 px-1.5 py-0.5 rounded">2</span>
-        </div>
-
-        <!-- 回收站（预留） -->
-        <div class="px-3 py-2 rounded-lg hover:bg-gray-200 cursor-pointer flex items-center justify-between text-gray-500">
-          <span class="flex items-center gap-2">
-            <i class="fas fa-trash-alt text-gray-400"></i>
+            <span class="nav-item-badge">2</span>
+          </div>
+          <div class="nav-item">
+            <div class="nav-item-icon"><i class="fas fa-trash-alt text-gray-500"></i></div>
             <span>回收站</span>
-          </span>
+          </div>
         </div>
 
-        <div class="h-px bg-gray-200 my-3"></div>
-
-        <!-- 状态筛选（新增） -->
-        <div class="px-3 py-1 text-xs font-medium text-gray-400 uppercase tracking-wider flex items-center justify-between mb-1">
-          <span>状态筛选</span>
-        </div>
-        <div class="px-3 py-1.5 rounded hover:bg-gray-200 cursor-pointer text-sm text-gray-600 flex items-center gap-2">
-          <span class="status-dot online"></span>
-          <span>全部</span>
-        </div>
-        <div class="px-3 py-1.5 rounded hover:bg-gray-200 cursor-pointer text-sm text-gray-600 flex items-center gap-2">
-          <span class="status-dot" style="background: #22c55e"></span>
-          <span>normal</span>
-        </div>
-        <div class="px-3 py-1.5 rounded hover:bg-gray-200 cursor-pointer text-sm text-gray-600 flex items-center gap-2">
-          <span class="status-dot" style="background: #eab308"></span>
-          <span>todo</span>
-        </div>
-        <div class="px-3 py-1.5 rounded hover:bg-gray-200 cursor-pointer text-sm text-gray-600 flex items-center gap-2">
-          <span class="status-dot" style="background: #3b82f6"></span>
-          <span>done</span>
+        <!-- 状态筛选 Tabs -->
+        <div class="nav-section">
+          <div class="nav-section-title">状态</div>
+          <div class="status-tabs">
+            <div class="status-tab active">全部</div>
+            <div class="status-tab"><span class="status-dot normal"></span>normal</div>
+            <div class="status-tab"><span class="status-dot todo"></span>todo</div>
+            <div class="status-tab"><span class="status-dot done"></span>done</div>
+          </div>
         </div>
 
-        <div class="h-px bg-gray-200 my-3"></div>
+        <!-- 分组 -->
+        <div class="nav-section">
+          <div class="flex items-center justify-between px-3 py-2">
+            <div class="nav-section-title" style="padding: 0;">分组</div>
+            <button class="text-gray-500 hover:text-gray-300 text-xs"><i class="fas fa-plus"></i></button>
+          </div>
 
-        <!-- 分组列表 -->
-        <div class="px-3 py-1 text-xs font-medium text-gray-400 uppercase tracking-wider flex items-center justify-between">
-          <span>分组</span>
-          <button class="text-gray-400 hover:text-blue-600" title="新建分组">
-            <i class="fas fa-plus"></i>
-          </button>
-        </div>
+          <div class="group-item active">
+            <div class="group-item-icon">📁</div>
+            <div class="group-item-name">我的备忘</div>
+            <div class="group-item-count">20</div>
+            <div class="group-item-actions">
+              <div class="group-action-btn" title="编辑"><i class="fas fa-pen"></i></div>
+              <div class="group-action-btn delete" title="删除"><i class="fas fa-trash-alt"></i></div>
+            </div>
+          </div>
 
-        <!-- 分组列表（可拖拽排序提示） -->
-        <div class="group-item selected px-3 py-2 rounded-lg cursor-pointer flex items-center justify-between text-gray-700 group">
-          <span class="flex items-center gap-2">
-            <span class="drag-handle text-gray-300 cursor-grab"><i class="fas fa-ellipsis-vertical"></i></span>
-            <span>📁</span>
-            <span class="group-name">我的备忘</span>
-          </span>
-          <span class="flex items-center gap-1">
-            <span class="text-xs text-gray-400 bg-gray-200 px-1.5 py-0.5 rounded">20</span>
-            <button class="group-menu text-gray-400 hover:text-gray-600" title="分组操作">
-              <i class="fas fa-ellipsis-v text-xs"></i>
-            </button>
-          </span>
-        </div>
+          <div class="group-item">
+            <div class="group-item-icon">💼</div>
+            <div class="group-item-name">工作笔记</div>
+            <div class="group-item-count">8</div>
+            <div class="group-item-actions">
+              <div class="group-action-btn" title="编辑"><i class="fas fa-pen"></i></div>
+              <div class="group-action-btn delete" title="删除"><i class="fas fa-trash-alt"></i></div>
+            </div>
+          </div>
 
-        <div class="group-item px-3 py-2 rounded-lg hover:bg-gray-200 cursor-pointer flex items-center justify-between text-gray-700 group">
-          <span class="flex items-center gap-2">
-            <span class="drag-handle text-gray-300 cursor-grab"><i class="fas fa-ellipsis-vertical"></i></span>
-            <span>💼</span>
-            <span class="group-name">工作笔记</span>
-          </span>
-          <span class="flex items-center gap-1">
-            <span class="text-xs text-gray-400 bg-gray-200 px-1.5 py-0.5 rounded">8</span>
-            <button class="group-menu text-gray-400 hover:text-gray-600" title="分组操作">
-              <i class="fas fa-ellipsis-v text-xs"></i>
-            </button>
-          </span>
-        </div>
+          <div class="group-item">
+            <div class="group-item-icon">💡</div>
+            <div class="group-item-name">灵感收集</div>
+            <div class="group-item-count">2</div>
+            <div class="group-item-actions">
+              <div class="group-action-btn" title="编辑"><i class="fas fa-pen"></i></div>
+              <div class="group-action-btn delete" title="删除"><i class="fas fa-trash-alt"></i></div>
+            </div>
+          </div>
 
-        <div class="group-item px-3 py-2 rounded-lg hover:bg-gray-200 cursor-pointer flex items-center justify-between text-gray-700 group">
-          <span class="flex items-center gap-2">
-            <span class="drag-handle text-gray-300 cursor-grab"><i class="fas fa-ellipsis-vertical"></i></span>
-            <span>💡</span>
-            <span class="group-name">灵感收集</span>
-          </span>
-          <span class="flex items-center gap-1">
-            <span class="text-xs text-gray-400 bg-gray-200 px-1.5 py-0.5 rounded">2</span>
-            <button class="group-menu text-gray-400 hover:text-gray-600" title="分组操作">
-              <i class="fas fa-ellipsis-v text-xs"></i>
-            </button>
-          </span>
-        </div>
-
-        <!-- 拖拽排序提示 -->
-        <div class="px-3 py-2 text-xs text-gray-400 italic flex items-center gap-1">
-          <i class="fas fa-info-circle"></i>
-          <span>拖拽可调整分组顺序</span>
+          <div class="drag-hint">
+            <i class="fas fa-arrows-alt-v mr-1"></i> 拖拽调整顺序
+          </div>
         </div>
       </nav>
 
-      <!-- 底部状态栏 -->
-      <div class="p-3 border-t border-gray-200 bg-gray-100">
-        <!-- 连接状态 -->
-        <div class="flex items-center justify-between text-xs text-gray-500 mb-2">
-          <span class="flex items-center gap-1">
-            <span class="status-dot online"></span>
-            <span>已连接</span>
-          </span>
-          <span class="autosave-indicator saved">
-            <i class="fas fa-check-circle"></i> 已保存
-          </span>
+      <!-- 未来能力预留 -->
+      <div class="future-capabilities">
+        <div class="future-item">
+          <i class="fas fa-search"></i>
+          <span>全局搜索</span>
+          <span class="shortcut-hint ml-auto">Ctrl+K</span>
         </div>
+        <div class="future-item">
+          <i class="fas fa-keyboard"></i>
+          <span>快捷键</span>
+        </div>
+      </div>
 
-        <!-- 设置入口 -->
-        <div class="px-3 py-2 rounded-lg hover:bg-gray-200 cursor-pointer flex items-center gap-2 text-gray-600 text-sm">
-          <i class="fas fa-cog"></i>
+      <!-- 底部状态 -->
+      <div class="sidebar-footer">
+        <div class="connection-status">
+          <span class="connection-dot online"></span>
+          <span>已连接</span>
+        </div>
+        <div class="nav-item" style="padding: 8px 0;">
+          <div class="nav-item-icon"><i class="fas fa-cog"></i></div>
           <span>设置</span>
         </div>
       </div>
     </aside>
 
-    <!-- Memo 列表 -->
-    <section class="w-80 bg-white border-r border-gray-200 flex flex-col">
-
-      <!-- 搜索栏 -->
-      <div class="p-3 border-b border-gray-100">
-        <div class="relative">
-          <input type="text" placeholder="搜索标题、内容、标签..." class="w-full pl-9 pr-4 py-2 bg-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-          <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+    <!-- 主内容区 -->
+    <main class="main-content">
+      <!-- Memo 列表 -->
+      <section class="memo-list">
+        <div class="memo-list-header">
+          <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="搜索标题、内容、标签... (Ctrl+K)">
+          </div>
+          <div class="tag-filter-bar">
+            <span class="tag-chip active">#会议</span>
+            <span class="tag-chip">#工作</span>
+            <span class="tag-chip">#待办</span>
+            <span class="tag-chip">#学习</span>
+            <span class="tag-chip" style="color: #52525b;">+</span>
+          </div>
         </div>
 
-        <!-- 标签筛选入口（新增） -->
-        <div class="mt-2 flex items-center gap-1 flex-wrap">
-          <span class="px-2 py-1 bg-blue-100 text-blue-600 text-xs rounded cursor-pointer hover:bg-blue-200">
-            #会议
-          </span>
-          <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded cursor-pointer hover:bg-gray-200">
-            #工作
-          </span>
-          <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded cursor-pointer hover:bg-gray-200">
-            #待办
-          </span>
-          <button class="px-2 py-1 text-xs text-gray-400 hover:text-gray-600">
-            + 更多
-          </button>
-        </div>
-      </div>
-
-      <!-- 新建按钮 -->
-      <div class="p-3">
-        <button class="w-full py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2">
+        <div class="new-memo-btn">
           <i class="fas fa-plus"></i>
           新建 Memo
-        </button>
-      </div>
+        </div>
 
-      <!-- 列表 -->
-      <div class="flex-1 overflow-y-auto">
-
-        <!-- Memo 项 - 已选中 -->
-        <div class="memo-item selected p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors border-l-2 border-l-blue-500">
-          <div class="flex items-center gap-2 text-xs text-gray-400 mb-1">
-            <span class="px-1.5 py-0.5 bg-blue-100 text-blue-600 rounded text-xs flex items-center gap-1">
-              <span class="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
-              normal
-            </span>
-            <span class="px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded text-xs">💼</span>
-            <span class="ml-auto">10分钟前</span>
+        <div class="memo-items">
+          <!-- 已选中项 -->
+          <div class="memo-item active">
+            <div class="memo-item-header">
+              <span class="status-dot normal"></span>
+              <span>normal</span>
+              <span style="margin-left: auto;">10分钟前</span>
+            </div>
+            <div class="memo-item-title">产品需求评审会议纪要</div>
+            <div class="memo-item-preview">讨论了 Q2 季度的核心功能，包括用户反馈系统和数据看板的优先级...</div>
+            <div class="memo-item-footer">
+              <span class="memo-item-tags">
+                <span class="memo-item-tag">#会议</span>
+                <span class="memo-item-tag">#需求</span>
+              </span>
+            </div>
           </div>
-          <h3 class="font-medium text-gray-800 mb-1">产品需求评审会议纪要</h3>
-          <p class="text-sm text-gray-500 line-clamp-2">讨论了 Q2 季度的核心功能，包括用户反馈系统和数据看板的优先级...</p>
-          <div class="flex items-center gap-1 mt-2">
-            <span class="px-1.5 py-0.5 bg-gray-100 text-gray-500 text-xs rounded">#会议</span>
-            <span class="px-1.5 py-0.5 bg-gray-100 text-gray-500 text-xs rounded">#需求</span>
+
+          <!-- 置顶项 -->
+          <div class="memo-item">
+            <div class="memo-item-header">
+              <i class="fas fa-thumbtack text-orange-400" style="font-size: 10px;"></i>
+              <span class="status-dot todo"></span>
+              <span>todo</span>
+              <span style="margin-left: auto;">30分钟前</span>
+            </div>
+            <div class="memo-item-title">
+              <i class="fas fa-thumbtack text-orange-400 mr-1" style="font-size: 10px;"></i>
+              每日待办事项
+            </div>
+            <div class="memo-item-preview">☐ 已完成项目<br>☐ 准备演示文档<br>☐ 回复客户邮件</div>
+            <div class="memo-item-footer">
+              <span class="memo-item-tags">
+                <span class="memo-item-tag">#待办</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- 收藏项 -->
+          <div class="memo-item">
+            <div class="memo-item-header">
+              <i class="fas fa-star text-yellow-500" style="font-size: 10px;"></i>
+              <span class="status-dot done"></span>
+              <span>done</span>
+              <span style="margin-left: auto;">2小时前</span>
+            </div>
+            <div class="memo-item-title">学习 Tauri 2 新特性</div>
+            <div class="memo-item-preview">WebView2、Rust 后端、系统托盘、窗口管理等核心功能...</div>
+            <div class="memo-item-footer">
+              <span class="memo-item-tags">
+                <span class="memo-item-tag">#学习</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- 普通项 -->
+          <div class="memo-item">
+            <div class="memo-item-header">
+              <span class="status-dot normal"></span>
+              <span>normal</span>
+              <span style="margin-left: auto;">昨天</span>
+            </div>
+            <div class="memo-item-title">技术方案设计模板</div>
+            <div class="memo-item-preview">## 背景...</div>
+            <div class="memo-item-footer">
+              <span class="memo-item-tags">
+                <span class="memo-item-tag">#模板</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 编辑器 -->
+      <section class="editor">
+        <!-- Markdown 工具栏 -->
+        <div class="editor-toolbar">
+          <div class="editor-toolbar-btn" title="加粗 (Ctrl+B)"><i class="fas fa-bold"></i></div>
+          <div class="editor-toolbar-btn" title="斜体 (Ctrl+I)"><i class="fas fa-italic"></i></div>
+          <div class="editor-toolbar-btn" title="删除线"><i class="fas fa-strikethrough"></i></div>
+          <div class="editor-toolbar-separator"></div>
+          <div class="editor-toolbar-btn" title="标题"><i class="fas fa-heading"></i></div>
+          <div class="editor-toolbar-btn" title="列表"><i class="fas fa-list-ul"></i></div>
+          <div class="editor-toolbar-btn" title="数字列表"><i class="fas fa-list-ol"></i></div>
+          <div class="editor-toolbar-btn" title="待办"><i class="fas fa-check-square"></i></div>
+          <div class="editor-toolbar-btn" title="引用"><i class="fas fa-quote-right"></i></div>
+          <div class="editor-toolbar-btn" title="代码"><i class="fas fa-code"></i></div>
+          <div class="editor-toolbar-btn" title="链接"><i class="fas fa-link"></i></div>
+          <div class="editor-toolbar-separator"></div>
+          <div class="editor-toolbar-btn" title="水平线"><i class="fas fa-minus"></i></div>
+
+          <!-- 编辑/预览切换 -->
+          <div class="editor-tabs">
+            <div class="editor-tab active">编辑</div>
+            <div class="editor-tab">预览</div>
           </div>
         </div>
 
-        <!-- Memo 项 - 置顶 -->
-        <div class="memo-item p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors">
-          <div class="flex items-center gap-2 text-xs text-gray-400 mb-1">
-            <i class="fas fa-thumbtack text-orange-500" title="已置顶"></i>
-            <span class="px-1.5 py-0.5 bg-yellow-100 text-yellow-700 rounded text-xs flex items-center gap-1">
-              <span class="w-1.5 h-1.5 bg-yellow-500 rounded-full"></span>
-              todo
-            </span>
-            <span class="px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded text-xs">📁</span>
-            <span class="ml-auto">30分钟前</span>
-          </div>
-          <h3 class="font-medium text-gray-800 mb-1 flex items-center gap-1">
-            <i class="fas fa-thumbtack text-orange-400 text-xs"></i>
-            每日待办事项
-          </h3>
-          <p class="text-sm text-gray-500 line-clamp-2">
-            <span class="text-green-500 line-through">☐ 已完成项目</span><br>
-            <span>☐ 准备演示文档</span><br>
-            <span>☐ 回复客户邮件</span>
-          </p>
-          <div class="flex items-center gap-1 mt-2">
-            <span class="px-1.5 py-0.5 bg-gray-100 text-gray-500 text-xs rounded">#待办</span>
-          </div>
-        </div>
-
-        <!-- Memo 项 - 已完成 -->
-        <div class="memo-item p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors">
-          <div class="flex items-center gap-2 text-xs text-gray-400 mb-1">
-            <i class="fas fa-star text-yellow-500" title="已收藏"></i>
-            <span class="px-1.5 py-0.5 bg-green-100 text-green-700 rounded text-xs flex items-center gap-1">
-              <span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
-              done
-            </span>
-            <span class="ml-auto">2小时前</span>
-          </div>
-          <h3 class="font-medium text-gray-800 mb-1">学习 Tauri 2 新特性</h3>
-          <p class="text-sm text-gray-500 line-clamp-2">WebView2、Rust 后端、系统托盘、窗口管理...</p>
-          <div class="flex items-center gap-1 mt-2">
-            <span class="px-1.5 py-0.5 bg-gray-100 text-gray-500 text-xs rounded">#学习</span>
+        <!-- 编辑器头部 -->
+        <div class="editor-header">
+          <input type="text" class="editor-title-input" value="产品需求评审会议纪要" placeholder="无标题">
+          <div class="editor-meta">
+            <div class="editor-meta-item">
+              <i class="fas fa-folder" style="font-size: 10px;"></i>
+              <select>
+                <option>我的备忘</option>
+                <option>工作笔记</option>
+                <option>灵感收集</option>
+              </select>
+            </div>
+            <div class="editor-meta-item">
+              <span class="status-dot normal"></span>
+              <select>
+                <option value="normal">normal</option>
+                <option value="todo">todo</option>
+                <option value="done">done</option>
+              </select>
+            </div>
+            <div class="editor-meta-item">
+              <i class="fas fa-clock" style="font-size: 10px;"></i>
+              <span>2024-01-15 10:00 创建</span>
+            </div>
+            <div class="editor-meta-item" style="margin-left: auto;">
+              <span>约 856 字</span>
+            </div>
           </div>
         </div>
 
-        <!-- Memo 项 - 普通 -->
-        <div class="memo-item p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors">
-          <div class="flex items-center gap-2 text-xs text-gray-400 mb-1">
-            <span class="px-1.5 py-0.5 bg-blue-100 text-blue-600 rounded text-xs flex items-center gap-1">
-              <span class="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
-              normal
-            </span>
-            <span class="ml-auto">昨天</span>
-          </div>
-          <h3 class="font-medium text-gray-800 mb-1">技术方案设计模板</h3>
-          <p class="text-sm text-gray-500 line-clamp-2">## 背景...</p>
-          <div class="flex items-center gap-1 mt-2">
-            <span class="px-1.5 py-0.5 bg-gray-100 text-gray-500 text-xs rounded">#模板</span>
-          </div>
-        </div>
-      </div>
-    </section>
+        <!-- 编辑器内容 -->
+        <div class="editor-content">
+          <textarea class="editor-textarea" placeholder="开始输入..."># 产品需求评审会议纪要
 
-    <!-- 编辑器 -->
-    <section class="flex-1 bg-white flex flex-col">
+**会议时间：** 2024-01-15 14:00-16:00
+**参会人员：** 产品、技术、设计、测试
 
-      <!-- 工具栏 -->
-      <div class="p-4 border-b border-gray-200 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <button class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg" title="返回列表">
-            <i class="fas fa-chevron-left"></i>
-          </button>
-        </div>
-        <div class="flex items-center gap-1">
-          <button class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg" title="置顶" id="btn-pin">
-            <i class="far fa-thumbtack"></i>
-          </button>
-          <button class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg" title="收藏" id="btn-favorite">
-            <i class="far fa-star"></i>
-          </button>
-          <button class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg" title="归档" id="btn-archive">
-            <i class="far fa-archive"></i>
-          </button>
-          <div class="w-px h-6 bg-gray-200 mx-1"></div>
-          <button class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg" title="更多操作" id="btn-more">
-            <i class="fas fa-ellipsis-v"></i>
-          </button>
-        </div>
-      </div>
+## 一、Q2 季度核心需求
 
-      <!-- 标题 -->
-      <div class="px-8 pt-6">
-        <input type="text" value="产品需求评审会议纪要" class="w-full text-2xl font-bold text-gray-800 border-none outline-none bg-transparent placeholder-gray-300" placeholder="无标题">
-      </div>
+讨论了以下功能的优先级：
 
-      <!-- Meta 信息 -->
-      <div class="px-8 py-3 flex items-center gap-4 text-sm text-gray-500 border-b border-gray-100 flex-wrap">
-        <span class="flex items-center gap-1">
-          <i class="fas fa-folder text-gray-400"></i>
-          <select class="bg-transparent text-gray-600 cursor-pointer focus:outline-none border border-transparent hover:border-gray-300 rounded px-2 py-1">
-            <option>工作笔记</option>
-            <option selected>我的备忘</option>
-          </select>
-        </span>
-        <span class="flex items-center gap-1">
-          <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-          <select class="bg-transparent text-gray-600 cursor-pointer focus:outline-none border border-transparent hover:border-gray-300 rounded px-2 py-1">
-            <option value="normal">normal</option>
-            <option value="todo">todo</option>
-            <option value="done">done</option>
-          </select>
-        </span>
-        <span class="flex items-center gap-1 text-xs text-gray-400">
-          <i class="fas fa-clock"></i>
-          <span>2024-01-15 10:00 创建</span>
-        </span>
-      </div>
+- 用户反馈系统
+- 数据看板优化
+- 移动端适配
+- 权限管理增强
 
-      <!-- 内容区域 -->
-      <div class="flex-1 overflow-y-auto px-8 py-6">
-        <div class="markdown-body max-w-3xl mx-auto">
-          <h1>产品需求评审会议纪要</h1>
+## 二、风险评估
 
-          <p><strong>会议时间：</strong>2024-01-15 14:00-16:00</p>
-          <p><strong>参会人员：</strong>产品、技术、设计、测试</p>
+> 资源有限，需要分阶段交付。技术方案需要进一步评审。
 
-          <h2>一、Q2 季度核心需求</h2>
-          <p>讨论了以下功能的优先级：</p>
+## 三、待办事项
 
-          <ul>
-            <li>用户反馈系统</li>
-            <li>数据看板优化</li>
-            <li>移动端适配</li>
-            <li>权限管理增强</li>
-          </ul>
+- [ ] 与客户确认优先级
+- [ ] 技术方案详细设计
+- [ ] 准备开发资源
+- [ ] 制定测试计划
 
-          <h2>二、风险评估</h2>
-          <blockquote>资源有限，需要分阶段交付。技术方案需要进一步评审。</blockquote>
+## 四、代码示例
 
-          <h2>三、待办事项</h2>
-          <ul>
-            <li><input type="checkbox"> 与客户确认优先级</li>
-            <li><input type="checkbox"> 技术方案详细设计</li>
-            <li><input type="checkbox"> 准备开发资源</li>
-            <li><input type="checkbox"> 制定测试计划</li>
-          </ul>
-
-          <h2>四、代码示例</h2>
-          <pre><code>// Tauri 2 + React
+```javascript
+// Tauri 2 + React
 import { invoke } from '@tauri-apps/api/core';
 
-const result = await invoke('generate_speech', { text });</code></pre>
+const result = await invoke('generate_speech', { text });
+```
 
-          <h2>五、备注</h2>
-          <p>下次评审时间：2024-01-22</p>
-        </div>
-      </div>
+## 五、备注
 
-      <!-- 底部操作栏 -->
-      <div class="px-8 py-4 border-t border-gray-200 flex items-center justify-between bg-gray-50">
-
-        <!-- 标签 -->
-        <div class="flex items-center gap-2 flex-wrap">
-          <span class="text-sm text-gray-500">标签：</span>
-          <span class="px-2 py-1 bg-blue-100 text-blue-600 text-xs rounded flex items-center gap-1">
-            #会议
-            <i class="fas fa-times text-xs cursor-pointer hover:text-blue-800"></i>
-          </span>
-          <span class="px-2 py-1 bg-green-100 text-green-600 text-xs rounded flex items-center gap-1">
-            #需求
-            <i class="fas fa-times text-xs cursor-pointer hover:text-green-800"></i>
-          </span>
-          <button class="px-2 py-1 text-xs text-gray-500 hover:bg-gray-200 rounded border border-dashed border-gray-300">
-            + 添加标签
-          </button>
+下次评审时间：2024-01-22</textarea>
         </div>
 
-        <!-- 操作按钮 + 自动保存状态 -->
-        <div class="flex items-center gap-3">
-          <span class="autosave-indicator saved text-xs">
-            <i class="fas fa-check-circle"></i> 已保存
-          </span>
-          <button class="px-4 py-2 text-gray-600 hover:bg-gray-200 rounded-lg text-sm">
-            取消
-          </button>
-          <button class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700">
-            保存
-          </button>
+        <!-- 编辑器底部状态栏 -->
+        <div class="editor-footer">
+          <div class="editor-footer-left">
+            <div class="autosave-status saved">
+              <i class="fas fa-check-circle"></i>
+              <span>已保存 · 1分钟前</span>
+            </div>
+          </div>
+          <div class="editor-footer-right">
+            <button class="px-3 py-1 rounded text-xs" style="background: #27272a; color: #71717a;">
+              <i class="fas fa-archive mr-1"></i>归档
+            </button>
+            <button class="px-3 py-1 rounded text-xs" style="background: #27272a; color: #71717a;">
+              <i class="fas fa-star mr-1"></i>收藏
+            </button>
+            <button class="px-3 py-1 rounded text-xs" style="background: #2727a8; color: #fff;">
+              保存 <span class="shortcut-hint" style="background: rgba(255,255,255,0.2); margin-left: 4px;">Ctrl+S</span>
+            </button>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </main>
   </div>
-
-  <!-- 右键菜单示例（分组操作） -->
-  <div class="context-menu" id="group-context-menu" style="display: none;">
-    <div class="context-menu-item">
-      <i class="fas fa-edit w-4"></i>
-      <span>编辑分组</span>
-    </div>
-    <div class="context-menu-item">
-      <i class="fas fa-palette w-4"></i>
-      <span>修改颜色</span>
-    </div>
-    <div class="context-menu-separator"></div>
-    <div class="context-menu-item danger">
-      <i class="fas fa-trash w-4"></i>
-      <span>删除分组</span>
-    </div>
-  </div>
-
-  <script>
-    // 简单的交互演示
-    document.querySelectorAll('.group-menu').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const menu = document.getElementById('group-context-menu');
-        const rect = btn.getBoundingClientRect();
-        menu.style.display = 'block';
-        menu.style.left = rect.right + 5 + 'px';
-        menu.style.top = rect.top + 'px';
-      });
-    });
-
-    document.addEventListener('click', () => {
-      document.getElementById('group-context-menu').style.display = 'none';
-    });
-
-    // Memo 项点击选中
-    document.querySelectorAll('.memo-item').forEach(item => {
-      item.addEventListener('click', () => {
-        document.querySelectorAll('.memo-item').forEach(i => {
-          i.classList.remove('selected', 'border-l-2', 'border-l-blue-500');
-        });
-        item.classList.add('selected', 'border-l-2', 'border-l-blue-500');
-      });
-    });
-
-    // 置顶按钮切换
-    document.getElementById('btn-pin').addEventListener('click', function() {
-      this.classList.toggle('bg-blue-100');
-      this.classList.toggle('text-blue-600');
-    });
-
-    // 收藏按钮切换
-    document.getElementById('btn-favorite').addEventListener('click', function() {
-      this.classList.toggle('bg-yellow-100');
-      this.classList.toggle('text-yellow-500');
-      const icon = this.querySelector('i');
-      icon.classList.toggle('far');
-      icon.classList.toggle('fas');
-    });
-  </script>
 </body>
 </html>
