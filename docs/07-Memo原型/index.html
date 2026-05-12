@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UniComm Memo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    
+    /* 自定义滚动条 */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+    
+    /* Markdown 样式 */
+    .markdown-body { color: #374151; line-height: 1.6; }
+    .markdown-body h1 { font-size: 1.5em; font-weight: 700; margin: 0.5em 0; }
+    .markdown-body h2 { font-size: 1.25em; font-weight: 600; margin: 0.5em 0; }
+    .markdown-body h3 { font-size: 1.1em; font-weight: 600; margin: 0.5em 0; }
+    .markdown-body ul { list-style: disc; padding-left: 1.5em; margin: 0.5em 0; }
+    .markdown-body ol { list-style: decimal; padding-left: 1.5em; margin: 0.5em 0; }
+    .markdown-body blockquote { border-left: 3px solid #d1d5db; padding-left: 1em; color: #6b7280; margin: 0.5em 0; }
+    .markdown-body code { background: #f3f4f6; padding: 0.125em 0.25em; border-radius: 4px; font-size: 0.9em; }
+    .markdown-body pre { background: #f3f4f6; padding: 1em; border-radius: 8px; overflow-x: auto; margin: 0.5em 0; }
+    .markdown-body pre code { background: transparent; padding: 0; }
+    .markdown-body input[type="checkbox"] { margin-right: 0.5em; }
+    
+    /* 选中样式 */
+    .memo-item.selected { background: #eff6ff; border-color: #2563eb; }
+  </style>
+</head>
+<body class="bg-gray-100 h-screen overflow-hidden">
+  <div class="flex h-full">
+    
+    <!-- 侧边栏 -->
+    <aside class="w-60 bg-white border-r border-gray-200 flex flex-col">
+      <!-- Logo -->
+      <div class="p-4 border-b border-gray-100">
+        <h1 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+          <span class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white text-sm">U</span>
+          UniComm
+        </h1>
+      </div>
+      
+      <!-- 导航 -->
+      <nav class="flex-1 overflow-y-auto p-2">
+        <!-- 全部 Memo -->
+        <div class="px-3 py-2 rounded-lg hover:bg-gray-100 cursor-pointer flex items-center justify-between text-gray-700">
+          <span class="flex items-center gap-2">
+            <i class="fas fa-sticky-note text-gray-400"></i>
+            <span>全部 Memo</span>
+          </span>
+          <span class="text-xs text-gray-400">30</span>
+        </div>
+        
+        <!-- 我的收藏 -->
+        <div class="px-3 py-2 rounded-lg hover:bg-gray-100 cursor-pointer flex items-center justify-between text-gray-700">
+          <span class="flex items-center gap-2">
+            <i class="fas fa-star text-yellow-400"></i>
+            <span>我的收藏</span>
+          </span>
+          <span class="text-xs text-gray-400">5</span>
+        </div>
+        
+        <!-- 已归档 -->
+        <div class="px-3 py-2 rounded-lg hover:bg-gray-100 cursor-pointer flex items-center justify-between text-gray-700">
+          <span class="flex items-center gap-2">
+            <i class="fas fa-archive text-gray-400"></i>
+            <span>已归档</span>
+          </span>
+          <span class="text-xs text-gray-400">2</span>
+        </div>
+        
+        <div class="h-px bg-gray-100 my-3"></div>
+        
+        <!-- 分组标题 -->
+        <div class="px-3 py-1 text-xs font-medium text-gray-400 uppercase tracking-wider flex items-center justify-between">
+          <span>分组</span>
+          <button class="text-gray-400 hover:text-gray-600">
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+        
+        <!-- 分组列表 -->
+        <div class="space-y-1">
+          <div class="px-3 py-2 rounded-lg bg-blue-50 cursor-pointer flex items-center justify-between text-gray-700">
+            <span class="flex items-center gap-2">
+              <span>📁</span>
+              <span>我的备忘</span>
+            </span>
+            <span class="text-xs text-gray-400">20</span>
+          </div>
+          <div class="px-3 py-2 rounded-lg hover:bg-gray-100 cursor-pointer flex items-center justify-between text-gray-700">
+            <span class="flex items-center gap-2">
+              <span>💼</span>
+              <span>工作笔记</span>
+            </span>
+            <span class="text-xs text-gray-400">8</span>
+          </div>
+          <div class="px-3 py-2 rounded-lg hover:bg-gray-100 cursor-pointer flex items-center justify-between text-gray-700">
+            <span class="flex items-center gap-2">
+              <span>💡</span>
+              <span>灵感收集</span>
+            </span>
+            <span class="text-xs text-gray-400">2</span>
+          </div>
+        </div>
+      </nav>
+      
+      <!-- 底部设置 -->
+      <div class="p-3 border-t border-gray-100">
+        <div class="px-3 py-2 rounded-lg hover:bg-gray-100 cursor-pointer flex items-center gap-2 text-gray-600 text-sm">
+          <i class="fas fa-cog"></i>
+          <span>设置</span>
+        </div>
+      </div>
+    </aside>
+    
+    <!-- Memo 列表 -->
+    <section class="w-80 bg-white border-r border-gray-200 flex flex-col">
+      <!-- 搜索栏 -->
+      <div class="p-3 border-b border-gray-100">
+        <div class="relative">
+          <input type="text" placeholder="搜索 Memo..." 
+                 class="w-full pl-9 pr-4 py-2 bg-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+        </div>
+      </div>
+      
+      <!-- 新建按钮 -->
+      <div class="p-3">
+        <button class="w-full py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2">
+          <i class="fas fa-plus"></i>
+          新建 Memo
+        </button>
+      </div>
+      
+      <!-- 列表 -->
+      <div class="flex-1 overflow-y-auto">
+        <!-- Memo 项 -->
+        <div class="memo-item selected p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors">
+          <div class="flex items-center gap-2 text-xs text-gray-400 mb-1">
+            <span class="px-2 py-0.5 bg-blue-100 text-blue-600 rounded">💼 工作</span>
+            <span>10分钟前</span>
+          </div>
+          <h3 class="font-medium text-gray-800 mb-1">产品需求评审会议纪要</h3>
+          <p class="text-sm text-gray-500 line-clamp-2">讨论了 Q2 季度的核心功能，包括用户反馈系统和数据看板的优先级...</p>
+          <div class="flex items-center gap-2 mt-2">
+            <span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded">#会议</span>
+            <span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded">#需求</span>
+          </div>
+        </div>
+        
+        <div class="memo-item p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors">
+          <div class="flex items-center gap-2 text-xs text-gray-400 mb-1">
+            <i class="fas fa-thumbtack text-orange-400"></i>
+            <span class="px-2 py-0.5 bg-gray-100 text-gray-500 rounded">📁 我的备忘</span>
+            <span>30分钟前</span>
+          </div>
+          <h3 class="font-medium text-gray-800 mb-1">📌 每日待办事项</h3>
+          <p class="text-sm text-gray-500 line-clamp-2">- [x] 同步项目进度<br>- [ ] 准备演示文档<br>- [ ] 回复客户邮件</p>
+          <div class="flex items-center gap-2 mt-2">
+            <span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded">#待办</span>
+          </div>
+        </div>
+        
+        <div class="memo-item p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors">
+          <div class="flex items-center gap-2 text-xs text-gray-400 mb-1">
+            <i class="fas fa-star text-yellow-400"></i>
+            <span class="px-2 py-0.5 bg-gray-100 text-gray-500 rounded">📁 我的备忘</span>
+            <span>2小时前</span>
+          </div>
+          <h3 class="font-medium text-gray-800 mb-1">学习 React 18 新特性</h3>
+          <p class="text-sm text-gray-500 line-clamp-2">Concurrent Features、Automatic Batching、Transitions...</p>
+          <div class="flex items-center gap-2 mt-2">
+            <span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded">#学习</span>
+            <span class="px-2 py-0.5 bg-green-100 text-green-600 text-xs rounded">done</span>
+          </div>
+        </div>
+        
+        <div class="memo-item p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors">
+          <div class="flex items-center gap-2 text-xs text-gray-400 mb-1">
+            <span class="px-2 py-0.5 bg-gray-100 text-gray-500 rounded">📁 我的备忘</span>
+            <span>昨天</span>
+          </div>
+          <h3 class="font-medium text-gray-800 mb-1">技术方案设计模板</h3>
+          <p class="text-sm text-gray-500 line-clamp-2">## 背景\n## 方案设计\n## 风险评估\n## 实施计划...</p>
+          <div class="flex items-center gap-2 mt-2">
+            <span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded">#模板</span>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 编辑器 -->
+    <section class="flex-1 bg-white flex flex-col">
+      <!-- 工具栏 -->
+      <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <button class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg">
+            <i class="fas fa-arrow-left"></i>
+          </button>
+          <span class="text-sm text-gray-500">返回</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg" title="置顶">
+            <i class="fas fa-thumbtack"></i>
+          </button>
+          <button class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg" title="收藏">
+            <i class="far fa-star"></i>
+          </button>
+          <button class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg" title="归档">
+            <i class="fas fa-archive"></i>
+          </button>
+          <div class="w-px h-6 bg-gray-200 mx-2"></div>
+          <button class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg" title="更多">
+            <i class="fas fa-ellipsis-v"></i>
+          </button>
+        </div>
+      </div>
+      
+      <!-- 标题 -->
+      <div class="px-8 pt-6">
+        <input type="text" value="产品需求评审会议纪要" 
+               class="w-full text-2xl font-bold text-gray-800 border-none outline-none bg-transparent placeholder-gray-300"
+               placeholder="无标题">
+      </div>
+      
+      <!-- Meta 信息 -->
+      <div class="px-8 py-3 flex items-center gap-4 text-sm text-gray-500 border-b border-gray-100">
+        <span class="flex items-center gap-1">
+          <i class="fas fa-folder text-gray-400"></i>
+          <select class="bg-transparent text-gray-600 cursor-pointer focus:outline-none">
+            <option>工作笔记</option>
+            <option selected>我的备忘</option>
+          </select>
+        </span>
+        <span class="flex items-center gap-1">
+          <span class="w-2 h-2 rounded-full bg-green-500"></span>
+          <select class="bg-transparent text-gray-600 cursor-pointer focus:outline-none">
+            <option value="normal">normal</option>
+            <option value="todo">todo</option>
+            <option value="done">done</option>
+          </select>
+        </span>
+      </div>
+      
+      <!-- 内容区域 -->
+      <div class="flex-1 overflow-y-auto px-8 py-6">
+        <div class="markdown-body max-w-3xl mx-auto">
+          <h1>产品需求评审会议纪要</h1>
+          
+          <p><strong>会议时间：</strong>2024-01-15 14:00-16:00</p>
+          <p><strong>参会人员：</strong>产品、技术、设计、测试</p>
+          
+          <h2>一、Q2 季度核心需求</h2>
+          <p>讨论了以下功能的优先级：</p>
+          
+          <ul>
+            <li>用户反馈系统</li>
+            <li>数据看板优化</li>
+            <li>移动端适配</li>
+            <li>权限管理增强</li>
+          </ul>
+          
+          <h2>二、风险评估</h2>
+          <blockquote>资源有限，需要分阶段交付。技术方案需要进一步评审。</blockquote>
+          
+          <h2>三、待办事项</h2>
+          <ul class="list-none space-y-2">
+            <li><input type="checkbox"> 与客户确认优先级</li>
+            <li><input type="checkbox"> 技术方案详细设计</li>
+            <li><input type="checkbox"> 准备开发资源</li>
+            <li><input type="checkbox"> 制定测试计划</li>
+          </ul>
+          
+          <h2>四、代码示例</h2>
+          <pre><code>// React Hook 示例
+const [data, setData] = useState(null);
+
+useEffect(() => {
+  fetchData().then(setData);
+}, []);</code></pre>
+          
+          <h2>五、备注</h2>
+          <p>下次评审时间：2024-01-22</p>
+        </div>
+      </div>
+      
+      <!-- 底部操作栏 -->
+      <div class="px-8 py-4 border-t border-gray-200 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="text-sm text-gray-500">标签：</span>
+          <div class="flex items-center gap-1">
+            <span class="px-2 py-1 bg-blue-100 text-blue-600 text-xs rounded flex items-center gap-1">
+              #会议
+              <i class="fas fa-times text-xs cursor-pointer hover:text-blue-800"></i>
+            </span>
+            <span class="px-2 py-1 bg-green-100 text-green-600 text-xs rounded flex items-center gap-1">
+              #需求
+              <i class="fas fa-times text-xs cursor-pointer hover:text-green-800"></i>
+            </span>
+            <button class="px-2 py-1 text-xs text-gray-500 hover:bg-gray-100 rounded border border-dashed border-gray-300">
+              + 添加标签
+            </button>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg text-sm">
+            取消
+          </button>
+          <button class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700">
+            保存
+          </button>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>
