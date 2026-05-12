@@ -87,7 +87,7 @@ docs/
 ├── 03-Memo需求文档.md       # Memo 功能需求
 ├── 04-数据库设计.md         # Memo 数据库设计
 ├── 05-API设计.md            # Memo API 设计
-├── 06-前端目录结构.md       # 桌面端项目结构
+├── 06-桌面端目录结构.md       # 桌面端项目结构
 └── 07-Memo原型/            # Memo HTML 原型
     └── index.html
 ```

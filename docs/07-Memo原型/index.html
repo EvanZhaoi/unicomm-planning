@@ -4,18 +4,31 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>UniComm Memo</title>
+  <!--
+    注意：此为静态原型，用于演示和评审。
+    正式桌面端项目不应依赖外部 CDN，
+    所有资源应本地打包以支持离线环境。
+  -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     * { box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-    
+
     /* 自定义滚动条 */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
-    
+
+    /* 窗口标题栏 */
+    .titlebar { height: 32px; background: #1f2937; -webkit-app-region: drag; }
+    .titlebar-button { -webkit-app-region: no-drag; }
+
+    /* 分组拖拽提示 */
+    .group-item:hover .drag-handle { opacity: 1; }
+    .drag-handle { opacity: 0; transition: opacity 0.2s; }
+
     /* Markdown 样式 */
     .markdown-body { color: #374151; line-height: 1.6; }
     .markdown-body h1 { font-size: 1.5em; font-weight: 700; margin: 0.5em 0; }
@@ -28,109 +41,244 @@
     .markdown-body pre { background: #f3f4f6; padding: 1em; border-radius: 8px; overflow-x: auto; margin: 0.5em 0; }
     .markdown-body pre code { background: transparent; padding: 0; }
     .markdown-body input[type="checkbox"] { margin-right: 0.5em; }
-    
+
     /* 选中样式 */
     .memo-item.selected { background: #eff6ff; border-color: #2563eb; }
+    .group-item.selected { background: #eff6ff; }
+
+    /* 状态指示器 */
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .status-dot.online { background: #22c55e; }
+    .status-dot.syncing { background: #eab308; animation: pulse 1s infinite; }
+    .status-dot.offline { background: #ef4444; }
+
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+    /* 右键菜单 */
+    .context-menu {
+      position: fixed;
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+      padding: 4px 0;
+      min-width: 160px;
+      z-index: 1000;
+    }
+    .context-menu-item {
+      padding: 8px 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+    }
+    .context-menu-item:hover { background: #f3f4f6; }
+    .context-menu-item.danger { color: #ef4444; }
+    .context-menu-separator { height: 1px; background: #e5e7eb; margin: 4px 0; }
+
+    /* 自动保存提示 */
+    .autosave-indicator { font-size: 11px; color: #9ca3af; }
+    .autosave-indicator.saving { color: #eab308; }
+    .autosave-indicator.saved { color: #22c55e; }
   </style>
 </head>
-<body class="bg-gray-100 h-screen overflow-hidden">
-  <div class="flex h-full">
-    
+<body class="bg-gray-100 h-screen overflow-hidden flex flex-col">
+
+  <!-- 窗口标题栏（桌面端感） -->
+  <div class="titlebar flex items-center justify-between px-3">
+    <div class="flex items-center gap-2 text-white text-xs">
+      <span class="w-5 h-5 bg-blue-600 rounded flex items-center justify-center text-white text-xs font-bold">U</span>
+      <span class="font-medium">UniComm Memo</span>
+    </div>
+    <div class="flex items-center gap-1">
+      <button class="titlebar-button w-10 h-8 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700">
+        <i class="fas fa-minus text-xs"></i>
+      </button>
+      <button class="titlebar-button w-10 h-8 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700">
+        <i class="far fa-square text-xs"></i>
+      </button>
+      <button class="titlebar-button w-10 h-8 flex items-center justify-center text-gray-400 hover:text-red-400 hover:bg-gray-700">
+        <i class="fas fa-times text-xs"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- 主内容区 -->
+  <div class="flex flex-1 overflow-hidden">
+
     <!-- 侧边栏 -->
-    <aside class="w-60 bg-white border-r border-gray-200 flex flex-col">
-      <!-- Logo -->
-      <div class="p-4 border-b border-gray-100">
-        <h1 class="text-lg font-bold text-gray-800 flex items-center gap-2">
-          <span class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white text-sm">U</span>
-          UniComm
-        </h1>
-      </div>
-      
+    <aside class="w-60 bg-gray-50 border-r border-gray-200 flex flex-col">
+
       <!-- 导航 -->
       <nav class="flex-1 overflow-y-auto p-2">
-        <!-- 全部 Memo -->
-        <div class="px-3 py-2 rounded-lg hover:bg-gray-100 cursor-pointer flex items-center justify-between text-gray-700">
+
+        <!-- 全部 Memo（带计数） -->
+        <div class="px-3 py-2 rounded-lg hover:bg-gray-200 cursor-pointer flex items-center justify-between text-gray-700">
           <span class="flex items-center gap-2">
             <i class="fas fa-sticky-note text-gray-400"></i>
             <span>全部 Memo</span>
           </span>
-          <span class="text-xs text-gray-400">30</span>
+          <span class="text-xs text-gray-400 bg-gray-200 px-1.5 py-0.5 rounded">30</span>
         </div>
-        
+
         <!-- 我的收藏 -->
-        <div class="px-3 py-2 rounded-lg hover:bg-gray-100 cursor-pointer flex items-center justify-between text-gray-700">
+        <div class="px-3 py-2 rounded-lg hover:bg-gray-200 cursor-pointer flex items-center justify-between text-gray-700">
           <span class="flex items-center gap-2">
-            <i class="fas fa-star text-yellow-400"></i>
+            <i class="fas fa-star text-yellow-500"></i>
             <span>我的收藏</span>
           </span>
-          <span class="text-xs text-gray-400">5</span>
+          <span class="text-xs text-gray-400 bg-gray-200 px-1.5 py-0.5 rounded">5</span>
         </div>
-        
+
         <!-- 已归档 -->
-        <div class="px-3 py-2 rounded-lg hover:bg-gray-100 cursor-pointer flex items-center justify-between text-gray-700">
+        <div class="px-3 py-2 rounded-lg hover:bg-gray-200 cursor-pointer flex items-center justify-between text-gray-700">
           <span class="flex items-center gap-2">
             <i class="fas fa-archive text-gray-400"></i>
             <span>已归档</span>
           </span>
-          <span class="text-xs text-gray-400">2</span>
+          <span class="text-xs text-gray-400 bg-gray-200 px-1.5 py-0.5 rounded">2</span>
         </div>
-        
-        <div class="h-px bg-gray-100 my-3"></div>
-        
-        <!-- 分组标题 -->
+
+        <!-- 回收站（预留） -->
+        <div class="px-3 py-2 rounded-lg hover:bg-gray-200 cursor-pointer flex items-center justify-between text-gray-500">
+          <span class="flex items-center gap-2">
+            <i class="fas fa-trash-alt text-gray-400"></i>
+            <span>回收站</span>
+          </span>
+        </div>
+
+        <div class="h-px bg-gray-200 my-3"></div>
+
+        <!-- 状态筛选（新增） -->
+        <div class="px-3 py-1 text-xs font-medium text-gray-400 uppercase tracking-wider flex items-center justify-between mb-1">
+          <span>状态筛选</span>
+        </div>
+        <div class="px-3 py-1.5 rounded hover:bg-gray-200 cursor-pointer text-sm text-gray-600 flex items-center gap-2">
+          <span class="status-dot online"></span>
+          <span>全部</span>
+        </div>
+        <div class="px-3 py-1.5 rounded hover:bg-gray-200 cursor-pointer text-sm text-gray-600 flex items-center gap-2">
+          <span class="status-dot" style="background: #22c55e"></span>
+          <span>normal</span>
+        </div>
+        <div class="px-3 py-1.5 rounded hover:bg-gray-200 cursor-pointer text-sm text-gray-600 flex items-center gap-2">
+          <span class="status-dot" style="background: #eab308"></span>
+          <span>todo</span>
+        </div>
+        <div class="px-3 py-1.5 rounded hover:bg-gray-200 cursor-pointer text-sm text-gray-600 flex items-center gap-2">
+          <span class="status-dot" style="background: #3b82f6"></span>
+          <span>done</span>
+        </div>
+
+        <div class="h-px bg-gray-200 my-3"></div>
+
+        <!-- 分组列表 -->
         <div class="px-3 py-1 text-xs font-medium text-gray-400 uppercase tracking-wider flex items-center justify-between">
           <span>分组</span>
-          <button class="text-gray-400 hover:text-gray-600">
+          <button class="text-gray-400 hover:text-blue-600" title="新建分组">
             <i class="fas fa-plus"></i>
           </button>
         </div>
-        
-        <!-- 分组列表 -->
-        <div class="space-y-1">
-          <div class="px-3 py-2 rounded-lg bg-blue-50 cursor-pointer flex items-center justify-between text-gray-700">
-            <span class="flex items-center gap-2">
-              <span>📁</span>
-              <span>我的备忘</span>
-            </span>
-            <span class="text-xs text-gray-400">20</span>
-          </div>
-          <div class="px-3 py-2 rounded-lg hover:bg-gray-100 cursor-pointer flex items-center justify-between text-gray-700">
-            <span class="flex items-center gap-2">
-              <span>💼</span>
-              <span>工作笔记</span>
-            </span>
-            <span class="text-xs text-gray-400">8</span>
-          </div>
-          <div class="px-3 py-2 rounded-lg hover:bg-gray-100 cursor-pointer flex items-center justify-between text-gray-700">
-            <span class="flex items-center gap-2">
-              <span>💡</span>
-              <span>灵感收集</span>
-            </span>
-            <span class="text-xs text-gray-400">2</span>
-          </div>
+
+        <!-- 分组列表（可拖拽排序提示） -->
+        <div class="group-item selected px-3 py-2 rounded-lg cursor-pointer flex items-center justify-between text-gray-700 group">
+          <span class="flex items-center gap-2">
+            <span class="drag-handle text-gray-300 cursor-grab"><i class="fas fa-ellipsis-vertical"></i></span>
+            <span>📁</span>
+            <span class="group-name">我的备忘</span>
+          </span>
+          <span class="flex items-center gap-1">
+            <span class="text-xs text-gray-400 bg-gray-200 px-1.5 py-0.5 rounded">20</span>
+            <button class="group-menu text-gray-400 hover:text-gray-600" title="分组操作">
+              <i class="fas fa-ellipsis-v text-xs"></i>
+            </button>
+          </span>
+        </div>
+
+        <div class="group-item px-3 py-2 rounded-lg hover:bg-gray-200 cursor-pointer flex items-center justify-between text-gray-700 group">
+          <span class="flex items-center gap-2">
+            <span class="drag-handle text-gray-300 cursor-grab"><i class="fas fa-ellipsis-vertical"></i></span>
+            <span>💼</span>
+            <span class="group-name">工作笔记</span>
+          </span>
+          <span class="flex items-center gap-1">
+            <span class="text-xs text-gray-400 bg-gray-200 px-1.5 py-0.5 rounded">8</span>
+            <button class="group-menu text-gray-400 hover:text-gray-600" title="分组操作">
+              <i class="fas fa-ellipsis-v text-xs"></i>
+            </button>
+          </span>
+        </div>
+
+        <div class="group-item px-3 py-2 rounded-lg hover:bg-gray-200 cursor-pointer flex items-center justify-between text-gray-700 group">
+          <span class="flex items-center gap-2">
+            <span class="drag-handle text-gray-300 cursor-grab"><i class="fas fa-ellipsis-vertical"></i></span>
+            <span>💡</span>
+            <span class="group-name">灵感收集</span>
+          </span>
+          <span class="flex items-center gap-1">
+            <span class="text-xs text-gray-400 bg-gray-200 px-1.5 py-0.5 rounded">2</span>
+            <button class="group-menu text-gray-400 hover:text-gray-600" title="分组操作">
+              <i class="fas fa-ellipsis-v text-xs"></i>
+            </button>
+          </span>
+        </div>
+
+        <!-- 拖拽排序提示 -->
+        <div class="px-3 py-2 text-xs text-gray-400 italic flex items-center gap-1">
+          <i class="fas fa-info-circle"></i>
+          <span>拖拽可调整分组顺序</span>
         </div>
       </nav>
-      
-      <!-- 底部设置 -->
-      <div class="p-3 border-t border-gray-100">
-        <div class="px-3 py-2 rounded-lg hover:bg-gray-100 cursor-pointer flex items-center gap-2 text-gray-600 text-sm">
+
+      <!-- 底部状态栏 -->
+      <div class="p-3 border-t border-gray-200 bg-gray-100">
+        <!-- 连接状态 -->
+        <div class="flex items-center justify-between text-xs text-gray-500 mb-2">
+          <span class="flex items-center gap-1">
+            <span class="status-dot online"></span>
+            <span>已连接</span>
+          </span>
+          <span class="autosave-indicator saved">
+            <i class="fas fa-check-circle"></i> 已保存
+          </span>
+        </div>
+
+        <!-- 设置入口 -->
+        <div class="px-3 py-2 rounded-lg hover:bg-gray-200 cursor-pointer flex items-center gap-2 text-gray-600 text-sm">
           <i class="fas fa-cog"></i>
           <span>设置</span>
         </div>
       </div>
     </aside>
-    
+
     <!-- Memo 列表 -->
     <section class="w-80 bg-white border-r border-gray-200 flex flex-col">
+
       <!-- 搜索栏 -->
       <div class="p-3 border-b border-gray-100">
         <div class="relative">
-          <input type="text" placeholder="搜索 Memo..." 
-                 class="w-full pl-9 pr-4 py-2 bg-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <input type="text" placeholder="搜索标题、内容、标签..." class="w-full pl-9 pr-4 py-2 bg-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
           <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
         </div>
+
+        <!-- 标签筛选入口（新增） -->
+        <div class="mt-2 flex items-center gap-1 flex-wrap">
+          <span class="px-2 py-1 bg-blue-100 text-blue-600 text-xs rounded cursor-pointer hover:bg-blue-200">
+            #会议
+          </span>
+          <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded cursor-pointer hover:bg-gray-200">
+            #工作
+          </span>
+          <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded cursor-pointer hover:bg-gray-200">
+            #待办
+          </span>
+          <button class="px-2 py-1 text-xs text-gray-400 hover:text-gray-600">
+            + 更多
+          </button>
+        </div>
       </div>
-      
+
       <!-- 新建按钮 -->
       <div class="p-3">
         <button class="w-full py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2">
@@ -138,179 +286,208 @@
           新建 Memo
         </button>
       </div>
-      
+
       <!-- 列表 -->
       <div class="flex-1 overflow-y-auto">
-        <!-- Memo 项 -->
-        <div class="memo-item selected p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors">
+
+        <!-- Memo 项 - 已选中 -->
+        <div class="memo-item selected p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors border-l-2 border-l-blue-500">
           <div class="flex items-center gap-2 text-xs text-gray-400 mb-1">
-            <span class="px-2 py-0.5 bg-blue-100 text-blue-600 rounded">💼 工作</span>
-            <span>10分钟前</span>
+            <span class="px-1.5 py-0.5 bg-blue-100 text-blue-600 rounded text-xs flex items-center gap-1">
+              <span class="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+              normal
+            </span>
+            <span class="px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded text-xs">💼</span>
+            <span class="ml-auto">10分钟前</span>
           </div>
           <h3 class="font-medium text-gray-800 mb-1">产品需求评审会议纪要</h3>
           <p class="text-sm text-gray-500 line-clamp-2">讨论了 Q2 季度的核心功能，包括用户反馈系统和数据看板的优先级...</p>
-          <div class="flex items-center gap-2 mt-2">
-            <span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded">#会议</span>
-            <span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded">#需求</span>
+          <div class="flex items-center gap-1 mt-2">
+            <span class="px-1.5 py-0.5 bg-gray-100 text-gray-500 text-xs rounded">#会议</span>
+            <span class="px-1.5 py-0.5 bg-gray-100 text-gray-500 text-xs rounded">#需求</span>
           </div>
         </div>
-        
+
+        <!-- Memo 项 - 置顶 -->
         <div class="memo-item p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors">
           <div class="flex items-center gap-2 text-xs text-gray-400 mb-1">
-            <i class="fas fa-thumbtack text-orange-400"></i>
-            <span class="px-2 py-0.5 bg-gray-100 text-gray-500 rounded">📁 我的备忘</span>
-            <span>30分钟前</span>
+            <i class="fas fa-thumbtack text-orange-500" title="已置顶"></i>
+            <span class="px-1.5 py-0.5 bg-yellow-100 text-yellow-700 rounded text-xs flex items-center gap-1">
+              <span class="w-1.5 h-1.5 bg-yellow-500 rounded-full"></span>
+              todo
+            </span>
+            <span class="px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded text-xs">📁</span>
+            <span class="ml-auto">30分钟前</span>
           </div>
-          <h3 class="font-medium text-gray-800 mb-1">📌 每日待办事项</h3>
-          <p class="text-sm text-gray-500 line-clamp-2">- [x] 同步项目进度<br>- [ ] 准备演示文档<br>- [ ] 回复客户邮件</p>
-          <div class="flex items-center gap-2 mt-2">
-            <span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded">#待办</span>
+          <h3 class="font-medium text-gray-800 mb-1 flex items-center gap-1">
+            <i class="fas fa-thumbtack text-orange-400 text-xs"></i>
+            每日待办事项
+          </h3>
+          <p class="text-sm text-gray-500 line-clamp-2">
+            <span class="text-green-500 line-through">☐ 已完成项目</span><br>
+            <span>☐ 准备演示文档</span><br>
+            <span>☐ 回复客户邮件</span>
+          </p>
+          <div class="flex items-center gap-1 mt-2">
+            <span class="px-1.5 py-0.5 bg-gray-100 text-gray-500 text-xs rounded">#待办</span>
           </div>
         </div>
-        
+
+        <!-- Memo 项 - 已完成 -->
         <div class="memo-item p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors">
           <div class="flex items-center gap-2 text-xs text-gray-400 mb-1">
-            <i class="fas fa-star text-yellow-400"></i>
-            <span class="px-2 py-0.5 bg-gray-100 text-gray-500 rounded">📁 我的备忘</span>
-            <span>2小时前</span>
+            <i class="fas fa-star text-yellow-500" title="已收藏"></i>
+            <span class="px-1.5 py-0.5 bg-green-100 text-green-700 rounded text-xs flex items-center gap-1">
+              <span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+              done
+            </span>
+            <span class="ml-auto">2小时前</span>
           </div>
-          <h3 class="font-medium text-gray-800 mb-1">学习 React 18 新特性</h3>
-          <p class="text-sm text-gray-500 line-clamp-2">Concurrent Features、Automatic Batching、Transitions...</p>
-          <div class="flex items-center gap-2 mt-2">
-            <span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded">#学习</span>
-            <span class="px-2 py-0.5 bg-green-100 text-green-600 text-xs rounded">done</span>
+          <h3 class="font-medium text-gray-800 mb-1">学习 Tauri 2 新特性</h3>
+          <p class="text-sm text-gray-500 line-clamp-2">WebView2、Rust 后端、系统托盘、窗口管理...</p>
+          <div class="flex items-center gap-1 mt-2">
+            <span class="px-1.5 py-0.5 bg-gray-100 text-gray-500 text-xs rounded">#学习</span>
           </div>
         </div>
-        
+
+        <!-- Memo 项 - 普通 -->
         <div class="memo-item p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors">
           <div class="flex items-center gap-2 text-xs text-gray-400 mb-1">
-            <span class="px-2 py-0.5 bg-gray-100 text-gray-500 rounded">📁 我的备忘</span>
-            <span>昨天</span>
+            <span class="px-1.5 py-0.5 bg-blue-100 text-blue-600 rounded text-xs flex items-center gap-1">
+              <span class="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+              normal
+            </span>
+            <span class="ml-auto">昨天</span>
           </div>
           <h3 class="font-medium text-gray-800 mb-1">技术方案设计模板</h3>
-          <p class="text-sm text-gray-500 line-clamp-2">## 背景\n## 方案设计\n## 风险评估\n## 实施计划...</p>
-          <div class="flex items-center gap-2 mt-2">
-            <span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded">#模板</span>
+          <p class="text-sm text-gray-500 line-clamp-2">## 背景...</p>
+          <div class="flex items-center gap-1 mt-2">
+            <span class="px-1.5 py-0.5 bg-gray-100 text-gray-500 text-xs rounded">#模板</span>
           </div>
         </div>
       </div>
     </section>
-    
+
     <!-- 编辑器 -->
     <section class="flex-1 bg-white flex flex-col">
+
       <!-- 工具栏 -->
       <div class="p-4 border-b border-gray-200 flex items-center justify-between">
         <div class="flex items-center gap-2">
-          <button class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg">
-            <i class="fas fa-arrow-left"></i>
+          <button class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg" title="返回列表">
+            <i class="fas fa-chevron-left"></i>
           </button>
-          <span class="text-sm text-gray-500">返回</span>
         </div>
-        <div class="flex items-center gap-2">
-          <button class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg" title="置顶">
-            <i class="fas fa-thumbtack"></i>
+        <div class="flex items-center gap-1">
+          <button class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg" title="置顶" id="btn-pin">
+            <i class="far fa-thumbtack"></i>
           </button>
-          <button class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg" title="收藏">
+          <button class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg" title="收藏" id="btn-favorite">
             <i class="far fa-star"></i>
           </button>
-          <button class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg" title="归档">
-            <i class="fas fa-archive"></i>
+          <button class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg" title="归档" id="btn-archive">
+            <i class="far fa-archive"></i>
           </button>
-          <div class="w-px h-6 bg-gray-200 mx-2"></div>
-          <button class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg" title="更多">
+          <div class="w-px h-6 bg-gray-200 mx-1"></div>
+          <button class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg" title="更多操作" id="btn-more">
             <i class="fas fa-ellipsis-v"></i>
           </button>
         </div>
       </div>
-      
+
       <!-- 标题 -->
       <div class="px-8 pt-6">
-        <input type="text" value="产品需求评审会议纪要" 
-               class="w-full text-2xl font-bold text-gray-800 border-none outline-none bg-transparent placeholder-gray-300"
-               placeholder="无标题">
+        <input type="text" value="产品需求评审会议纪要" class="w-full text-2xl font-bold text-gray-800 border-none outline-none bg-transparent placeholder-gray-300" placeholder="无标题">
       </div>
-      
+
       <!-- Meta 信息 -->
-      <div class="px-8 py-3 flex items-center gap-4 text-sm text-gray-500 border-b border-gray-100">
+      <div class="px-8 py-3 flex items-center gap-4 text-sm text-gray-500 border-b border-gray-100 flex-wrap">
         <span class="flex items-center gap-1">
           <i class="fas fa-folder text-gray-400"></i>
-          <select class="bg-transparent text-gray-600 cursor-pointer focus:outline-none">
+          <select class="bg-transparent text-gray-600 cursor-pointer focus:outline-none border border-transparent hover:border-gray-300 rounded px-2 py-1">
             <option>工作笔记</option>
             <option selected>我的备忘</option>
           </select>
         </span>
         <span class="flex items-center gap-1">
-          <span class="w-2 h-2 rounded-full bg-green-500"></span>
-          <select class="bg-transparent text-gray-600 cursor-pointer focus:outline-none">
+          <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+          <select class="bg-transparent text-gray-600 cursor-pointer focus:outline-none border border-transparent hover:border-gray-300 rounded px-2 py-1">
             <option value="normal">normal</option>
             <option value="todo">todo</option>
             <option value="done">done</option>
           </select>
         </span>
+        <span class="flex items-center gap-1 text-xs text-gray-400">
+          <i class="fas fa-clock"></i>
+          <span>2024-01-15 10:00 创建</span>
+        </span>
       </div>
-      
+
       <!-- 内容区域 -->
       <div class="flex-1 overflow-y-auto px-8 py-6">
         <div class="markdown-body max-w-3xl mx-auto">
           <h1>产品需求评审会议纪要</h1>
-          
+
           <p><strong>会议时间：</strong>2024-01-15 14:00-16:00</p>
           <p><strong>参会人员：</strong>产品、技术、设计、测试</p>
-          
+
           <h2>一、Q2 季度核心需求</h2>
           <p>讨论了以下功能的优先级：</p>
-          
+
           <ul>
             <li>用户反馈系统</li>
             <li>数据看板优化</li>
             <li>移动端适配</li>
             <li>权限管理增强</li>
           </ul>
-          
+
           <h2>二、风险评估</h2>
           <blockquote>资源有限，需要分阶段交付。技术方案需要进一步评审。</blockquote>
-          
+
           <h2>三、待办事项</h2>
-          <ul class="list-none space-y-2">
+          <ul>
             <li><input type="checkbox"> 与客户确认优先级</li>
             <li><input type="checkbox"> 技术方案详细设计</li>
             <li><input type="checkbox"> 准备开发资源</li>
             <li><input type="checkbox"> 制定测试计划</li>
           </ul>
-          
-          <h2>四、代码示例</h2>
-          <pre><code>// React Hook 示例
-const [data, setData] = useState(null);
 
-useEffect(() => {
-  fetchData().then(setData);
-}, []);</code></pre>
-          
+          <h2>四、代码示例</h2>
+          <pre><code>// Tauri 2 + React
+import { invoke } from '@tauri-apps/api/core';
+
+const result = await invoke('generate_speech', { text });</code></pre>
+
           <h2>五、备注</h2>
           <p>下次评审时间：2024-01-22</p>
         </div>
       </div>
-      
+
       <!-- 底部操作栏 -->
-      <div class="px-8 py-4 border-t border-gray-200 flex items-center justify-between">
-        <div class="flex items-center gap-2">
+      <div class="px-8 py-4 border-t border-gray-200 flex items-center justify-between bg-gray-50">
+
+        <!-- 标签 -->
+        <div class="flex items-center gap-2 flex-wrap">
           <span class="text-sm text-gray-500">标签：</span>
-          <div class="flex items-center gap-1">
-            <span class="px-2 py-1 bg-blue-100 text-blue-600 text-xs rounded flex items-center gap-1">
-              #会议
-              <i class="fas fa-times text-xs cursor-pointer hover:text-blue-800"></i>
-            </span>
-            <span class="px-2 py-1 bg-green-100 text-green-600 text-xs rounded flex items-center gap-1">
-              #需求
-              <i class="fas fa-times text-xs cursor-pointer hover:text-green-800"></i>
-            </span>
-            <button class="px-2 py-1 text-xs text-gray-500 hover:bg-gray-100 rounded border border-dashed border-gray-300">
-              + 添加标签
-            </button>
-          </div>
+          <span class="px-2 py-1 bg-blue-100 text-blue-600 text-xs rounded flex items-center gap-1">
+            #会议
+            <i class="fas fa-times text-xs cursor-pointer hover:text-blue-800"></i>
+          </span>
+          <span class="px-2 py-1 bg-green-100 text-green-600 text-xs rounded flex items-center gap-1">
+            #需求
+            <i class="fas fa-times text-xs cursor-pointer hover:text-green-800"></i>
+          </span>
+          <button class="px-2 py-1 text-xs text-gray-500 hover:bg-gray-200 rounded border border-dashed border-gray-300">
+            + 添加标签
+          </button>
         </div>
-        <div class="flex items-center gap-2">
-          <button class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg text-sm">
+
+        <!-- 操作按钮 + 自动保存状态 -->
+        <div class="flex items-center gap-3">
+          <span class="autosave-indicator saved text-xs">
+            <i class="fas fa-check-circle"></i> 已保存
+          </span>
+          <button class="px-4 py-2 text-gray-600 hover:bg-gray-200 rounded-lg text-sm">
             取消
           </button>
           <button class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700">
@@ -320,5 +497,65 @@ useEffect(() => {
       </div>
     </section>
   </div>
+
+  <!-- 右键菜单示例（分组操作） -->
+  <div class="context-menu" id="group-context-menu" style="display: none;">
+    <div class="context-menu-item">
+      <i class="fas fa-edit w-4"></i>
+      <span>编辑分组</span>
+    </div>
+    <div class="context-menu-item">
+      <i class="fas fa-palette w-4"></i>
+      <span>修改颜色</span>
+    </div>
+    <div class="context-menu-separator"></div>
+    <div class="context-menu-item danger">
+      <i class="fas fa-trash w-4"></i>
+      <span>删除分组</span>
+    </div>
+  </div>
+
+  <script>
+    // 简单的交互演示
+    document.querySelectorAll('.group-menu').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const menu = document.getElementById('group-context-menu');
+        const rect = btn.getBoundingClientRect();
+        menu.style.display = 'block';
+        menu.style.left = rect.right + 5 + 'px';
+        menu.style.top = rect.top + 'px';
+      });
+    });
+
+    document.addEventListener('click', () => {
+      document.getElementById('group-context-menu').style.display = 'none';
+    });
+
+    // Memo 项点击选中
+    document.querySelectorAll('.memo-item').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.memo-item').forEach(i => {
+          i.classList.remove('selected', 'border-l-2', 'border-l-blue-500');
+        });
+        item.classList.add('selected', 'border-l-2', 'border-l-blue-500');
+      });
+    });
+
+    // 置顶按钮切换
+    document.getElementById('btn-pin').addEventListener('click', function() {
+      this.classList.toggle('bg-blue-100');
+      this.classList.toggle('text-blue-600');
+    });
+
+    // 收藏按钮切换
+    document.getElementById('btn-favorite').addEventListener('click', function() {
+      this.classList.toggle('bg-yellow-100');
+      this.classList.toggle('text-yellow-500');
+      const icon = this.querySelector('i');
+      icon.classList.toggle('far');
+      icon.classList.toggle('fas');
+    });
+  </script>
 </body>
 </html>
