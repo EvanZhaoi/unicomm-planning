@@ -31,7 +31,7 @@ UniComm 是面向企业的模块化通信平台，支持：
 - `unicomm-planning` - 项目规划、需求文档、技术方案
 
 ### 正式项目（后续）
-- `unicomm-server` - 后端服务（Spring Boot 3 + Java 21）
+- `unicomm-server` - 后端服务（Spring Boot 4 + Java 21）
 - `unicomm-desktop` - 桌面应用（Tauri 2 + React + TypeScript）
 - `unicomm-plugin` - 插件系统（未来）
 
@@ -45,7 +45,7 @@ UniComm 是面向企业的模块化通信平台，支持：
 - **样式**：TailwindCSS
 
 ### 后端（unicomm-server）
-- **框架**：Spring Boot 3 + Java 21
+- **框架**：Spring Boot 4 + Java 21
 - **ORM**：MyBatis Plus
 - **缓存**：Redis
 - **实时**：WebSocket
