@@ -177,6 +177,10 @@
 
     /* 侧边栏底部 */
     .sidebar-footer { padding: 12px; border-top: 1px solid #27272a; }
+    .theme-switcher { display: flex; gap: 4px; }
+    .theme-btn { transition: all 0.15s; }
+    .theme-btn:hover { background: #3f3f46 !important; color: #e4e4e7 !important; }
+    .theme-btn.active { background: #2727a8 !important; color: #fff !important; }
     .connection-status {
       display: flex;
       align-items: center;
@@ -636,9 +640,22 @@
 
       <!-- 底部状态 -->
       <div class="sidebar-footer">
-        <div class="connection-status">
-          <span class="connection-dot online"></span>
-          <span>已连接</span>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+          <div class="connection-status">
+            <span class="connection-dot online"></span>
+            <span>已连接</span>
+          </div>
+          <div class="theme-switcher">
+            <button class="theme-btn active" data-theme="system" title="跟随系统" style="width: 24px; height: 24px; border-radius: 4px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; background: #2727a8; color: #fff; font-size: 10px;">
+              <i class="fas fa-cog"></i>
+            </button>
+            <button class="theme-btn" data-theme="light" title="亮色模式" style="width: 24px; height: 24px; border-radius: 4px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; background: #27272a; color: #52525b; font-size: 10px;">
+              <i class="fas fa-sun"></i>
+            </button>
+            <button class="theme-btn" data-theme="dark" title="暗色模式" style="width: 24px; height: 24px; border-radius: 4px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; background: #27272a; color: #52525b; font-size: 10px;">
+              <i class="fas fa-moon"></i>
+            </button>
+          </div>
         </div>
         <div class="nav-item" style="padding: 8px 0;">
           <div class="nav-item-icon"><i class="fas fa-cog"></i></div>
