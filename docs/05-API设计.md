@@ -74,7 +74,12 @@ Content-Type: application/json
 
 **接口:** `POST /api/v1/auth/desktop/verify`
 
-**接口说明:** 桌面端启动时调用，验证 Windows 用户是否为企业员工并获取会话凭证。
+**接口说明:** 
+- 桌面端启动时调用，验证 Windows 用户
+- 后端根据 username 调用公司人员接口获取员工信息
+- 如果人员接口返回有效员工并且状态正常，则创建会话 Token
+- 如果人员接口返回失败/用户不存在/用户停用，则拒绝访问
+- 后端会把人员信息写入 user_snapshot 作为缓存和审计
 
 **请求参数:**
 
@@ -105,10 +110,11 @@ Content-Type: application/json
 
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| userId | long | 是 | 用户 ID |
+| username | string | 是 | Windows 用户名 |
 | employeeNo | string | 是 | 员工工号 |
 | displayName | string | 是 | 显示名称 |
 | departmentName | string | 是 | 部门名称 |
+| email | string | 否 | 邮箱（如果有） |
 | permissions | array | 是 | 权限列表 |
 | accessToken | string | 是 | 服务端会话令牌 |
 
@@ -118,10 +124,11 @@ Content-Type: application/json
   "code": 200,
   "message": "success",
   "data": {
-    "userId": 10001,
+    "username": "evan.zhao",
     "employeeNo": "E10001",
     "displayName": "Evan Zhao",
     "departmentName": "IT Department",
+    "email": "evan.zhao@company.com",
     "permissions": ["memo:read", "memo:write"],
     "accessToken": "server-issued-token"
   }
@@ -132,14 +139,14 @@ Content-Type: application/json
 
 | code | 说明 |
 |------|------|
-| 401 | 当前 Windows 用户未开通 UniComm 权限 |
+| 401 | 当前 Windows 用户未在公司人员系统中登记或已停用 |
 | 403 | 用户已被禁用 |
 | 500 | 认证服务异常 |
 
 **注意事项:**
-- 用户身份必须以后端校验结果为准
-- 前端读取到的 Windows 用户信息只能作为身份线索，不能完全信任
-- 设备信息用于安全审计和未来设备绑定功能
+- 用户身份必须以后端调用公司人员接口返回结果为准
+- 前端传来的 username 只是身份线索，不能直接信任
+- 后端签发 Token 后，Memo 数据通过 owner_username 进行隔离
 
 ---
 
