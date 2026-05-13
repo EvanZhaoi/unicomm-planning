@@ -98,7 +98,7 @@ interface Memo {
   tags: string[];       // 标签列表
   createTime: Date;     // 创建时间
   updateTime: Date;     // 更新时间
-  createUser: number;   // 创建人
+  ownerUsername: string;   // 所有者用户名（用于数据隔离）
 }
 ```
 
@@ -113,7 +113,7 @@ interface MemoGroup {
   sortOrder: number;   // 排序
   createTime: Date;     // 创建时间
   updateTime: Date;     // 更新时间
-  createUser: number;   // 创建人
+  ownerUsername: string;   // 所有者用户名（用于数据隔离）
 }
 ```
 
@@ -125,7 +125,7 @@ interface MemoTag {
   name: string;        // 标签名称
   color: string;       // 颜色
   createTime: Date;     // 创建时间
-  createUser: number;   // 创建人
+  ownerUsername: string;   // 所有者用户名（用于数据隔离）
 }
 ```
 
