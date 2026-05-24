@@ -64,9 +64,14 @@ UniComm 是面向企业的模块化通信平台，支持：
 - 标签功能
 - 收藏/归档/置顶
 - 搜索筛选
+- 快速 Memo 小窗口，仅用于快捷新增 Memo
 
 **桌面端能力：**
 - 系统托盘常驻
+- 关闭窗口后后台运行
+- 全局快捷键唤出主界面
+- 全局快捷键唤出快速 Memo 小窗口
+- 设置页支持修改快捷键
 - WebSocket 实时同步
 - 本地缓存支持离线
 - 桌面通知
@@ -104,16 +109,21 @@ docs/
 - [x] 完成前端原型
 
 ### Phase 2: Desktop 搭建
-- [ ] 搭建 unicomm-desktop 项目骨架
-- [ ] 配置 Tauri 2 + React + Vite
-- [ ] 实现系统托盘
-- [ ] 实现窗口管理
+- [x] 搭建 unicomm-desktop 项目骨架
+- [x] 配置 Tauri 2 + React + Vite
+- [x] 实现系统托盘
+- [x] 实现窗口管理
+- [x] 实现后台运行（关闭窗口隐藏，不退出）
+- [x] 实现主界面全局快捷键
+- [x] 实现快速 Memo 全局快捷键
+- [x] 实现设置页快捷键配置
 - [ ] 配置 WebSocket 连接
 
 ### Phase 3: Memo 开发
-- [ ] 搭建 unicomm-server
-- [ ] 实现 Memo CRUD API
-- [ ] 实现 Memo 前端页面
+- [x] 搭建 unicomm-server
+- [x] 实现 Memo CRUD API
+- [x] 实现 Memo 前端页面
+- [x] 实现快速 Memo 新增入口
 - [ ] 实现 Markdown 编辑器
 - [ ] 实现分组/标签功能
 - [ ] 实现搜索筛选
