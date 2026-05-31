@@ -4,40 +4,137 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>UniComm - 企业桌面协作平台</title>
-  <!--
-    静态原型演示文件
-    正式桌面端项目不应依赖外部 CDN
-    所有资源应本地打包以支持离线环境
-  -->
-  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    /* ========================================
+       UniComm Design System - CSS Variables
+       ======================================== */
+    :root {
+      /* 第1层：背景 */
+      --background: #f8f9fa;
+      --foreground: #1a1a1a;
+
+      /* 第2层：次级区域 */
+      --muted: #f1f3f5;
+      --muted-foreground: #868e96;
+      --secondary: #e9ecef;
+      --secondary-foreground: #495057;
+
+      /* 第3层：卡片/面板 */
+      --card: #ffffff;
+      --card-foreground: #1a1a1a;
+      --popover: #ffffff;
+      --popover-foreground: #1a1a1a;
+
+      /* 第4层：交互色 */
+      --primary: #2563eb;
+      --primary-foreground: #ffffff;
+      --accent: #f1f3f5;
+      --accent-foreground: #1a1a1a;
+
+      /* 边框 */
+      --border: #e9ecef;
+      --input: #e9ecef;
+      --ring: #2563eb;
+
+      /* 功能色 */
+      --destructive: #ef4444;
+      --destructive-foreground: #ffffff;
+
+      /* 阴影 */
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+
+      /* 圆角 */
+      --radius-sm: 6px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --radius-xl: 16px;
+
+      /* 间距 */
+      --space-xs: 4px;
+      --space-sm: 8px;
+      --space-md: 16px;
+      --space-lg: 24px;
+      --space-xl: 32px;
+
+      /* 字体 */
+      --font-zh: "Alibaba PuHuiTi 3.0", "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+      --font-ja: "Alibaba Sans JP", "Alibaba PuHuiTi 3.0", "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", "Meiryo", "Noto Sans JP", sans-serif;
+
+      color-scheme: light;
+    }
+
+    .dark {
+      /* 第1层：背景 */
+      --background: #09090b;
+      --foreground: #fafafa;
+
+      /* 第2层 */
+      --muted: #18181b;
+      --muted-foreground: #71717a;
+      --secondary: #27272a;
+      --secondary-foreground: #a1a1aa;
+
+      /* 第3层：卡片 */
+      --card: #18181b;
+      --card-foreground: #fafafa;
+      --popover: #1f1f23;
+      --popover-foreground: #fafafa;
+
+      /* 第4层 */
+      --primary: #3b82f6;
+      --primary-foreground: #ffffff;
+      --accent: #27272a;
+      --accent-foreground: #fafafa;
+
+      /* 边框 */
+      --border: #27272a;
+      --input: #27272a;
+      --ring: #3b82f6;
+
+      /* 功能色 */
+      --destructive: #dc2626;
+      --destructive-foreground: #ffffff;
+
+      color-scheme: dark;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      border-color: var(--border);
+    }
+
     body {
-      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #1a1a2e;
-      color: #e4e4e7;
+      font-family: var(--font-zh);
+      background: var(--background);
+      color: var(--foreground);
       height: 100vh;
       overflow: hidden;
     }
 
-    /* 窗口标题栏 */
+    /* ========================================
+       窗口标题栏
+       ======================================== */
     .titlebar {
       height: 36px;
-      background: #16162a;
+      background: var(--card);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 8px;
+      padding: 0 var(--space-sm);
       -webkit-app-region: drag;
       user-select: none;
+      border-bottom: 1px solid var(--border);
     }
     .titlebar-title {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: var(--space-sm);
       font-size: 12px;
-      color: #a1a1aa;
+      color: var(--muted-foreground);
     }
     .titlebar-controls {
       display: flex;
@@ -49,80 +146,130 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #71717a;
-      transition: background 0.15s, color 0.15s;
+      color: var(--muted-foreground);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .titlebar-btn:hover { background: #2727a8; color: #fff; }
-    .titlebar-btn.close:hover { background: #dc2626; color: #fff; }
+    .titlebar-btn:hover {
+      background: var(--accent);
+      color: var(--foreground);
+    }
+    .titlebar-btn.close:hover {
+      background: var(--destructive);
+      color: var(--destructive-foreground);
+    }
 
-    /* 应用主布局 */
-    .app-layout { display: flex; height: calc(100vh - 36px); }
+    /* ========================================
+       应用主布局
+       ======================================== */
+    .app-layout {
+      display: flex;
+      height: calc(100vh - 36px);
+    }
 
-    /* 侧边栏 */
+    /* ========================================
+       侧边栏
+       ======================================== */
     .sidebar {
       width: 220px;
-      background: #16162a;
-      border-right: 1px solid #27272a;
+      background: var(--card);
+      border-right: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
       display: flex;
       flex-direction: column;
       flex-shrink: 0;
+      transition: width 200ms cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .sidebar-header { padding: 12px 16px; border-bottom: 1px solid #27272a; }
-    .sidebar-nav { flex: 1; overflow-y: auto; padding: 8px; }
-    .nav-section { margin-bottom: 16px; }
+    .sidebar-header {
+      padding: var(--space-md);
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-header h1 {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--foreground);
+    }
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--space-sm);
+    }
+    .nav-section {
+      margin-bottom: var(--space-lg);
+    }
     .nav-section-title {
       font-size: 10px;
       font-weight: 600;
-      color: #52525b;
+      color: var(--muted-foreground);
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      padding: 8px 12px 4px;
+      padding: var(--space-sm) var(--space-sm) var(--space-xs);
     }
     .nav-item {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 8px 12px;
-      border-radius: 6px;
+      gap: var(--space-sm);
+      padding: 10px var(--space-sm);
+      border-radius: var(--radius-md);
       cursor: pointer;
-      transition: background 0.15s;
       font-size: 13px;
-      color: #a1a1aa;
+      color: var(--muted-foreground);
+      transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .nav-item:hover { background: #27272a; color: #e4e4e7; }
-    .nav-item.active { background: #2727a8; color: #fff; }
-    .nav-item-icon { width: 16px; display: flex; align-items: center; justify-content: center; }
+    .nav-item:hover {
+      background: var(--accent);
+      color: var(--foreground);
+    }
+    .nav-item.active {
+      background: var(--accent);
+      color: var(--accent-foreground);
+      font-weight: 500;
+    }
+    .nav-item-icon {
+      width: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
     .nav-item-badge {
       margin-left: auto;
       font-size: 10px;
-      background: #27272a;
-      color: #71717a;
+      background: var(--muted);
+      color: var(--muted-foreground);
       padding: 2px 6px;
       border-radius: 10px;
     }
-    .nav-item.active .nav-item-badge { background: rgba(255,255,255,0.2); color: #fff; }
 
-    /* 状态筛选 Tabs */
+    /* ========================================
+       状态筛选 Tabs
+       ======================================== */
     .status-tabs {
       display: flex;
-      gap: 4px;
-      padding: 4px;
-      background: #1a1a2e;
-      border-radius: 6px;
-      margin: 8px 12px;
+      gap: var(--space-xs);
+      padding: var(--space-xs);
+      background: var(--muted);
+      border-radius: var(--radius-md);
+      margin: var(--space-xs) var(--space-sm);
     }
     .status-tab {
       flex: 1;
-      padding: 6px 8px;
-      border-radius: 4px;
+      padding: 6px var(--space-xs);
+      border-radius: var(--radius-sm);
       font-size: 11px;
       text-align: center;
       cursor: pointer;
-      transition: all 0.15s;
-      color: #71717a;
+      transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+      color: var(--muted-foreground);
     }
-    .status-tab:hover { color: #e4e4e7; }
-    .status-tab.active { background: #2727a8; color: #fff; }
+    .status-tab:hover {
+      color: var(--foreground);
+    }
+    .status-tab.active {
+      background: var(--primary);
+      color: var(--primary-foreground);
+    }
     .status-dot {
       display: inline-block;
       width: 6px;
@@ -134,166 +281,268 @@
     .status-dot.todo { background: #eab308; }
     .status-dot.done { background: #3b82f6; }
 
-    /* 分组列表 */
+    /* ========================================
+       分组列表
+       ======================================== */
     .group-item {
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
-      border-radius: 6px;
+      gap: var(--space-sm);
+      padding: 10px var(--space-sm);
+      border-radius: var(--radius-md);
       cursor: pointer;
-      transition: background 0.15s;
       font-size: 13px;
-      color: #a1a1aa;
+      color: var(--muted-foreground);
+      transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .group-item:hover { background: #27272a; color: #e4e4e7; }
-    .group-item.active { background: #2727a8; color: #fff; }
-    .group-item-icon { font-size: 12px; }
-    .group-item-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .group-item-count { font-size: 10px; color: #52525b; }
-    .group-item.active .group-item-count { color: rgba(255,255,255,0.6); }
-    .group-item-actions { display: none; gap: 2px; }
-    .group-item:hover .group-item-actions { display: flex; }
-    .group-item:hover .group-item-count { display: none; }
+    .group-item:hover {
+      background: var(--accent);
+      color: var(--foreground);
+    }
+    .group-item.active {
+      background: var(--accent);
+      color: var(--accent-foreground);
+    }
+    .group-item-icon {
+      font-size: 12px;
+      width: 16px;
+      text-align: center;
+    }
+    .group-item-name {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .group-item-count {
+      font-size: 10px;
+      color: var(--muted-foreground);
+    }
+    .group-item-actions {
+      display: none;
+      gap: 2px;
+    }
+    .group-item:hover .group-item-actions {
+      display: flex;
+    }
+    .group-item:hover .group-item-count {
+      display: none;
+    }
     .group-action-btn {
       width: 20px;
       height: 20px;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 4px;
+      border-radius: var(--radius-sm);
       font-size: 10px;
-      color: #71717a;
-      transition: all 0.15s;
+      color: var(--muted-foreground);
+      transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .group-action-btn:hover { background: #3f3f46; color: #e4e4e7; }
-    .group-action-btn.delete:hover { background: #dc2626; color: #fff; }
-    .drag-hint {
-      font-size: 10px;
-      color: #52525b;
-      padding: 4px 12px;
-      font-style: italic;
+    .group-action-btn:hover {
+      background: var(--secondary);
+      color: var(--foreground);
+    }
+    .group-action-btn.delete:hover {
+      background: var(--destructive);
+      color: var(--destructive-foreground);
     }
 
-    /* 侧边栏底部 */
-    .sidebar-footer { padding: 12px; border-top: 1px solid #27272a; }
-    .theme-switcher { display: flex; gap: 4px; }
-    .theme-btn { transition: all 0.15s; }
-    .theme-btn:hover { background: #3f3f46 !important; color: #e4e4e7 !important; }
-    .theme-btn.active { background: #2727a8 !important; color: #fff !important; }
+    /* ========================================
+       侧边栏底部
+       ======================================== */
+    .sidebar-footer {
+      padding: var(--space-md);
+      border-top: 1px solid var(--border);
+    }
+    .theme-switcher {
+      display: flex;
+      gap: 2px;
+      background: var(--muted);
+      padding: 2px;
+      border-radius: var(--radius-md);
+      margin-bottom: var(--space-sm);
+    }
+    .theme-btn {
+      flex: 1;
+      padding: 6px;
+      border-radius: var(--radius-sm);
+      font-size: 11px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+      color: var(--muted-foreground);
+    }
+    .theme-btn:hover {
+      background: var(--secondary);
+      color: var(--foreground);
+    }
+    .theme-btn.active {
+      background: var(--card);
+      color: var(--foreground);
+      box-shadow: var(--shadow-sm);
+    }
     .connection-status {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: var(--space-sm);
       font-size: 11px;
-      color: #71717a;
-      margin-bottom: 8px;
+      color: var(--muted-foreground);
     }
-    .connection-dot { width: 6px; height: 6px; border-radius: 50%; }
+    .connection-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
     .connection-dot.online { background: #22c55e; }
-    .connection-dot.offline { background: #ef4444; }
+    .connection-dot.offline { background: var(--destructive); }
     .connection-dot.syncing { background: #eab308; animation: pulse 1s infinite; }
     @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-    /* 主内容区 */
-    .main-content { flex: 1; display: flex; background: #1a1a2e; overflow: hidden; }
+    /* ========================================
+       主内容区
+       ======================================== */
+    .main-content {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
 
-    /* Memo 列表 */
+    /* ========================================
+       Memo 列表
+       ======================================== */
     .memo-list {
-      width: 280px;
-      background: #1e1e32;
-      border-right: 1px solid #27272a;
+      width: 320px;
+      background: var(--card);
+      border-right: 1px solid var(--border);
       display: flex;
       flex-direction: column;
       flex-shrink: 0;
     }
-    .memo-list-header { padding: 12px; border-bottom: 1px solid #27272a; }
+    .memo-list-header {
+      padding: var(--space-md);
+      border-bottom: 1px solid var(--border);
+    }
     .search-box {
       display: flex;
       align-items: center;
-      gap: 8px;
-      background: #27272a;
-      border-radius: 6px;
-      padding: 8px 12px;
+      gap: var(--space-sm);
+      background: var(--background);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 8px var(--space-sm);
+      transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .search-box:focus-within {
+      border-color: var(--ring);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
     }
     .search-box input {
       flex: 1;
       background: transparent;
       border: none;
       outline: none;
-      color: #e4e4e7;
+      color: var(--foreground);
       font-size: 13px;
     }
-    .search-box input::placeholder { color: #52525b; }
-    .search-box i { color: #52525b; font-size: 12px; }
-
-    /* 标签筛选条 */
-    .tag-filter-bar {
-      display: flex;
-      gap: 4px;
-      padding: 8px 12px 0;
-      flex-wrap: wrap;
+    .search-box input::placeholder {
+      color: var(--muted-foreground);
     }
-    .tag-chip {
-      font-size: 10px;
-      padding: 3px 8px;
-      border-radius: 10px;
-      background: #27272a;
-      color: #71717a;
-      cursor: pointer;
-      transition: all 0.15s;
+    .search-box i {
+      color: var(--muted-foreground);
+      font-size: 12px;
     }
-    .tag-chip:hover { background: #3f3f46; color: #e4e4e7; }
-    .tag-chip.active { background: #2727a8; color: #fff; }
 
     /* 新建按钮 */
     .new-memo-btn {
-      margin: 12px;
+      margin: var(--space-md);
       padding: 10px;
-      background: #2727a8;
-      color: #fff;
-      border-radius: 6px;
+      background: var(--primary);
+      color: var(--primary-foreground);
+      border-radius: var(--radius-md);
       font-size: 13px;
       font-weight: 500;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      transition: background 0.15s;
+      gap: var(--space-xs);
+      transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: var(--shadow-sm);
     }
-    .new-memo-btn:hover { background: #3730a3; }
+    .new-memo-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+    .new-memo-btn:active {
+      transform: translateY(0);
+    }
 
-    /* Memo 列表 */
-    .memo-items { flex: 1; overflow-y: auto; }
-    .memo-item {
-      padding: 12px;
-      border-bottom: 1px solid #27272a;
-      cursor: pointer;
-      transition: background 0.15s;
-    }
-    .memo-item:hover { background: #27272a; }
-    .memo-item.active { background: #27272a; border-left: 2px solid #2727a8; }
-    .memo-item-header {
+    /* 标签筛选条 */
+    .tag-filter-bar {
       display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-bottom: 4px;
-      font-size: 11px;
-      color: #71717a;
+      gap: var(--space-xs);
+      padding: 0 var(--space-md) var(--space-sm);
+      flex-wrap: wrap;
+    }
+    .tag-chip {
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 10px;
+      background: var(--muted);
+      color: var(--muted-foreground);
+      cursor: pointer;
+      transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .tag-chip:hover {
+      background: var(--secondary);
+      color: var(--foreground);
+    }
+    .tag-chip.active {
+      background: var(--primary);
+      color: var(--primary-foreground);
+    }
+
+    /* ========================================
+       Memo 列表项
+       ======================================== */
+    .memo-items {
+      flex: 1;
+      overflow-y: auto;
+    }
+    .memo-item {
+      padding: var(--space-md);
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+      border-left: 2px solid transparent;
+    }
+    .memo-item:hover {
+      background: var(--accent);
+    }
+    .memo-item.active {
+      background: var(--accent);
+      border-left-color: var(--primary);
     }
     .memo-item-title {
       font-size: 13px;
       font-weight: 500;
-      color: #e4e4e7;
-      margin-bottom: 4px;
+      color: var(--foreground);
+      margin-bottom: var(--space-xs);
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+    .memo-item-title .pinned {
+      color: var(--primary);
+      font-size: 11px;
     }
     .memo-item-preview {
       font-size: 12px;
-      color: #52525b;
+      color: var(--muted-foreground);
       overflow: hidden;
       text-overflow: ellipsis;
       display: -webkit-box;
@@ -304,23 +553,24 @@
     .memo-item-footer {
       display: flex;
       align-items: center;
-      gap: 4px;
-      margin-top: 6px;
+      gap: var(--space-xs);
+      margin-top: var(--space-sm);
       font-size: 10px;
-      color: #52525b;
+      color: var(--muted-foreground);
     }
-    .memo-item-tags { flex: 1; }
     .memo-item-tag {
-      background: #27272a;
+      background: var(--muted);
       padding: 2px 6px;
-      border-radius: 4px;
+      border-radius: var(--radius-sm);
       margin-right: 4px;
     }
 
-    /* 编辑器 */
+    /* ========================================
+       编辑器
+       ======================================== */
     .editor {
       flex: 1;
-      background: #1e1e32;
+      background: var(--background);
       display: flex;
       flex-direction: column;
       overflow: hidden;
@@ -328,10 +578,10 @@
     .editor-toolbar {
       display: flex;
       align-items: center;
-      gap: 4px;
-      padding: 8px 16px;
-      border-bottom: 1px solid #27272a;
-      background: #1e1e32;
+      gap: var(--space-xs);
+      padding: var(--space-sm) var(--space-md);
+      border-bottom: 1px solid var(--border);
+      background: var(--card);
     }
     .editor-toolbar-btn {
       width: 32px;
@@ -339,58 +589,77 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 4px;
-      color: #71717a;
+      border-radius: var(--radius-sm);
+      color: var(--muted-foreground);
       cursor: pointer;
-      transition: all 0.15s;
+      transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
       font-size: 12px;
     }
-    .editor-toolbar-btn:hover { background: #27272a; color: #e4e4e7; }
-    .editor-toolbar-btn.active { background: #2727a8; color: #fff; }
+    .editor-toolbar-btn:hover {
+      background: var(--accent);
+      color: var(--foreground);
+    }
+    .editor-toolbar-btn.active {
+      background: rgba(37, 99, 235, 0.1);
+      color: var(--primary);
+    }
     .editor-toolbar-separator {
       width: 1px;
       height: 20px;
-      background: #27272a;
-      margin: 0 4px;
+      background: var(--border);
+      margin: 0 var(--space-xs);
     }
     .editor-tabs {
       display: flex;
-      gap: 4px;
+      gap: 2px;
       margin-left: auto;
+      background: var(--muted);
+      padding: 2px;
+      border-radius: var(--radius-sm);
     }
     .editor-tab {
       padding: 6px 12px;
-      border-radius: 4px;
+      border-radius: var(--radius-sm);
       font-size: 11px;
-      color: #71717a;
+      color: var(--muted-foreground);
       cursor: pointer;
-      transition: all 0.15s;
+      transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .editor-tab:hover { background: #27272a; color: #e4e4e7; }
-    .editor-tab.active { background: #2727a8; color: #fff; }
+    .editor-tab:hover {
+      color: var(--foreground);
+    }
+    .editor-tab.active {
+      background: var(--card);
+      color: var(--foreground);
+      box-shadow: var(--shadow-sm);
+    }
 
     /* 编辑器头部 */
     .editor-header {
-      padding: 16px 24px;
-      border-bottom: 1px solid #27272a;
+      padding: var(--space-lg);
+      border-bottom: 1px solid var(--border);
+      background: var(--card);
     }
     .editor-title-input {
       width: 100%;
       background: transparent;
       border: none;
       outline: none;
-      font-size: 24px;
+      font-size: 20px;
       font-weight: 600;
-      color: #e4e4e7;
+      letter-spacing: -0.02em;
+      color: var(--foreground);
     }
-    .editor-title-input::placeholder { color: #3f3f46; }
+    .editor-title-input::placeholder {
+      color: var(--muted-foreground);
+    }
     .editor-meta {
       display: flex;
       align-items: center;
-      gap: 16px;
-      margin-top: 8px;
+      gap: var(--space-md);
+      margin-top: var(--space-sm);
       font-size: 12px;
-      color: #52525b;
+      color: var(--muted-foreground);
     }
     .editor-meta-item {
       display: flex;
@@ -399,267 +668,345 @@
     }
     .editor-meta-item select {
       background: transparent;
-      border: none;
-      color: #71717a;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--muted-foreground);
+      padding: 4px 8px;
       cursor: pointer;
       outline: none;
+      transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .editor-meta-item select:hover { color: #e4e4e7; }
+    .editor-meta-item select:hover {
+      border-color: var(--ring);
+      color: var(--foreground);
+    }
+    .editor-meta-item select:focus {
+      border-color: var(--ring);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
 
     /* 编辑器内容 */
     .editor-content {
       flex: 1;
-      padding: 16px 24px;
+      padding: var(--space-lg);
       overflow-y: auto;
     }
     .editor-textarea {
       width: 100%;
       height: 100%;
-      background: transparent;
-      border: none;
+      background: var(--background);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
       outline: none;
       resize: none;
       font-size: 14px;
-      line-height: 1.8;
-      color: #d4d4d8;
-      font-family: 'SF Mono', 'Consolas', monospace;
+      line-height: 1.75;
+      color: var(--foreground);
+      padding: var(--space-md);
+      font-family: "JetBrains Mono", "SF Mono", "Consolas", monospace;
+      transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .editor-textarea::placeholder { color: #3f3f46; }
+    .editor-textarea:focus {
+      border-color: var(--ring);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    .editor-textarea::placeholder {
+      color: var(--muted-foreground);
+    }
 
     /* Markdown 预览 */
-    .markdown-preview { font-size: 14px; line-height: 1.8; color: #d4d4d8; }
-    .markdown-preview h1 { font-size: 20px; font-weight: 600; margin: 16px 0 8px; color: #fff; }
-    .markdown-preview h2 { font-size: 16px; font-weight: 600; margin: 14px 0 6px; color: #e4e4e7; }
-    .markdown-preview h3 { font-size: 14px; font-weight: 600; margin: 12px 0 4px; color: #d4d4d8; }
-    .markdown-preview p { margin: 8px 0; }
-    .markdown-preview ul, .markdown-preview ol { padding-left: 20px; margin: 8px 0; }
-    .markdown-preview li { margin: 4px 0; }
+    .markdown-preview {
+      font-size: 14px;
+      line-height: 1.75;
+      color: var(--foreground);
+    }
+    .markdown-preview h1 {
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin: var(--space-md) 0 var(--space-sm);
+    }
+    .markdown-preview h2 {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin: var(--space-lg) 0 var(--space-sm);
+    }
+    .markdown-preview h3 {
+      font-size: 14px;
+      font-weight: 600;
+      margin: var(--space-md) 0 var(--space-xs);
+    }
+    .markdown-preview p {
+      margin: var(--space-sm) 0;
+    }
+    .markdown-preview ul, .markdown-preview ol {
+      padding-left: 20px;
+      margin: var(--space-sm) 0;
+    }
+    .markdown-preview li {
+      margin: var(--space-xs) 0;
+    }
     .markdown-preview blockquote {
-      border-left: 3px solid #2727a8;
-      padding-left: 12px;
-      margin: 12px 0;
-      color: #71717a;
+      border-left: 3px solid var(--primary);
+      padding-left: var(--space-md);
+      margin: var(--space-md) 0;
+      color: var(--muted-foreground);
     }
     .markdown-preview code {
-      background: #27272a;
+      background: var(--muted);
       padding: 2px 6px;
-      border-radius: 4px;
-      font-family: 'SF Mono', 'Consolas', monospace;
+      border-radius: var(--radius-sm);
       font-size: 13px;
     }
     .markdown-preview pre {
-      background: #27272a;
-      padding: 12px;
-      border-radius: 6px;
+      background: var(--muted);
+      padding: var(--space-md);
+      border-radius: var(--radius-md);
       overflow-x: auto;
-      margin: 12px 0;
+      margin: var(--space-md) 0;
     }
-    .markdown-preview pre code { background: transparent; padding: 0; }
-    .markdown-preview input[type="checkbox"] { margin-right: 6px; }
-    .markdown-preview hr { border: none; border-top: 1px solid #27272a; margin: 16px 0; }
+    .markdown-preview pre code {
+      background: none;
+      padding: 0;
+    }
 
     /* 编辑器底部状态栏 */
     .editor-footer {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 8px 16px;
-      border-top: 1px solid #27272a;
-      background: #1a1a2e;
-      font-size: 11px;
-      color: #52525b;
+      padding: var(--space-sm) var(--space-md);
+      border-top: 1px solid var(--border);
+      background: var(--card);
     }
-    .editor-footer-left { display: flex; align-items: center; gap: 12px; }
-    .editor-footer-right { display: flex; align-items: center; gap: 8px; }
-    .autosave-status { display: flex; align-items: center; gap: 4px; }
-    .autosave-status.saved { color: #22c55e; }
-    .autosave-status.saving { color: #eab308; }
-    .autosave-status.error { color: #ef4444; }
-
-    /* 快捷键提示 */
-    .shortcut-hint {
-      font-size: 10px;
-      color: #3f3f46;
-      background: #27272a;
-      padding: 2px 4px;
-      border-radius: 2px;
-      font-family: 'SF Mono', 'Consolas', monospace;
-    }
-
-    /* 未来能力预留 */
-    .future-capabilities { padding: 8px 12px; border-top: 1px solid #27272a; }
-    .future-item {
+    .editor-footer-left {
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background 0.15s;
-      font-size: 12px;
-      color: #52525b;
+      gap: var(--space-md);
     }
-    .future-item:hover { background: #27272a; color: #71717a; }
+    .autosave-status {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      font-size: 11px;
+      color: var(--muted-foreground);
+    }
+    .autosave-status i {
+      color: #22c55e;
+    }
+    .autosave-status.saving i {
+      color: #eab308;
+    }
+    .editor-footer-right {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+    .editor-footer-btn {
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+      border: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .editor-footer-btn.secondary {
+      background: var(--muted);
+      color: var(--muted-foreground);
+    }
+    .editor-footer-btn.secondary:hover {
+      background: var(--secondary);
+      color: var(--foreground);
+    }
+    .editor-footer-btn.primary {
+      background: var(--primary);
+      color: var(--primary-foreground);
+      box-shadow: var(--shadow-sm);
+    }
+    .editor-footer-btn.primary:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+    .editor-footer-btn.primary:active {
+      transform: translateY(0);
+    }
+    .shortcut-hint {
+      background: rgba(255,255,255,0.2);
+      padding: 2px 4px;
+      border-radius: 3px;
+      font-size: 10px;
+    }
+
+    /* ========================================
+       空状态
+       ======================================== */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-xl);
+      text-align: center;
+      color: var(--muted-foreground);
+    }
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: var(--space-md);
+    }
+    .empty-state-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--foreground);
+      margin-bottom: var(--space-xs);
+    }
+    .empty-state-desc {
+      font-size: 13px;
+    }
+
+    /* ========================================
+       骨架屏
+       ======================================== */
+    .skeleton {
+      background: linear-gradient(
+        90deg,
+        var(--muted) 25%,
+        var(--secondary) 50%,
+        var(--muted) 75%
+      );
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: var(--radius-sm);
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .skeleton-text {
+      height: 14px;
+      margin: var(--space-xs) 0;
+    }
+    .skeleton-title {
+      height: 18px;
+      width: 60%;
+      margin-bottom: var(--space-sm);
+    }
+    .skeleton-btn {
+      height: 36px;
+      width: 100%;
+      margin: var(--space-sm) 0;
+    }
+
+    /* ========================================
+       主题切换
+       ======================================== */
+    body.dark .titlebar,
+    body.dark .sidebar,
+    body.dark .memo-list,
+    body.dark .editor-toolbar,
+    body.dark .editor-header,
+    body.dark .editor-footer,
+    body.dark .sidebar-footer {
+      background: var(--card) !important;
+    }
   </style>
 </head>
 <body>
   <!-- 窗口标题栏 -->
   <div class="titlebar">
     <div class="titlebar-title">
-      <div class="flex items-center gap-2">
-        <div class="w-5 h-5 bg-blue-600 rounded flex items-center justify-center text-white text-xs font-bold">U</div>
-        <span class="font-medium text-xs">UniComm</span>
-      </div>
+      <i class="fas fa-comment-dots" style="color: var(--primary);"></i>
+      <span>UniComm</span>
     </div>
     <div class="titlebar-controls">
-      <div class="titlebar-btn" title="最小化"><i class="fas fa-minus text-xs"></i></div>
-      <div class="titlebar-btn" title="最大化"><i class="far fa-square text-xs"></i></div>
-      <div class="titlebar-btn close" title="关闭"><i class="fas fa-times text-xs"></i></div>
+      <div class="titlebar-btn"><i class="fas fa-minus"></i></div>
+      <div class="titlebar-btn"><i class="far fa-square"></i></div>
+      <div class="titlebar-btn close"><i class="fas fa-times"></i></div>
     </div>
   </div>
 
-  <!-- 应用主布局 -->
   <div class="app-layout">
     <!-- 侧边栏 -->
     <aside class="sidebar">
       <div class="sidebar-header">
-        <div class="flex items-center gap-3">
-          <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-medium">E</div>
-          <div>
-            <div class="text-sm font-medium text-gray-200">Evan</div>
-            <div class="text-xs text-gray-500">企业用户</div>
-          </div>
-        </div>
+        <h1>UniComm</h1>
       </div>
-
       <nav class="sidebar-nav">
-        <!-- 主导航 -->
         <div class="nav-section">
-          <div class="nav-section-title">导航</div>
+          <div class="nav-section-title">快捷入口</div>
           <div class="nav-item active">
-            <div class="nav-item-icon"><i class="fas fa-sticky-note"></i></div>
-            <span>Memo</span>
+            <i class="nav-item-icon fas fa-sticky-note"></i>
+            <span>备忘录</span>
+            <span class="nav-item-badge">12</span>
           </div>
           <div class="nav-item">
-            <div class="nav-item-icon"><i class="fas fa-bell"></i></div>
+            <i class="nav-item-icon fas fa-bell"></i>
             <span>通知</span>
             <span class="nav-item-badge">3</span>
           </div>
           <div class="nav-item">
-            <div class="nav-item-icon"><i class="fas fa-robot"></i></div>
+            <i class="nav-item-icon fas fa-robot"></i>
             <span>AI 助手</span>
-            <span class="nav-item-badge" style="background: #2727a8; color: #fff;">新</span>
           </div>
         </div>
 
-        <!-- 快速筛选 -->
-        <div class="nav-section">
-          <div class="nav-section-title">快速筛选</div>
-          <div class="nav-item">
-            <div class="nav-item-icon"><i class="fas fa-star text-yellow-500"></i></div>
-            <span>我的收藏</span>
-            <span class="nav-item-badge">5</span>
-          </div>
-          <div class="nav-item">
-            <div class="nav-item-icon"><i class="fas fa-archive text-gray-500"></i></div>
-            <span>已归档</span>
-            <span class="nav-item-badge">2</span>
-          </div>
-          <div class="nav-item">
-            <div class="nav-item-icon"><i class="fas fa-trash-alt text-gray-500"></i></div>
-            <span>回收站</span>
-          </div>
-        </div>
-
-        <!-- 状态筛选 Tabs -->
         <div class="nav-section">
           <div class="nav-section-title">状态</div>
           <div class="status-tabs">
             <div class="status-tab active">全部</div>
-            <div class="status-tab"><span class="status-dot normal"></span>normal</div>
-            <div class="status-tab"><span class="status-dot todo"></span>todo</div>
-            <div class="status-tab"><span class="status-dot done"></span>done</div>
+            <div class="status-tab">正常</div>
+            <div class="status-tab">待办</div>
+            <div class="status-tab">已完成</div>
           </div>
         </div>
 
-        <!-- 分组 -->
         <div class="nav-section">
-          <div class="flex items-center justify-between px-3 py-2">
-            <div class="nav-section-title" style="padding: 0;">分组</div>
-            <button class="text-gray-500 hover:text-gray-300 text-xs"><i class="fas fa-plus"></i></button>
-          </div>
-
+          <div class="nav-section-title">我的分组</div>
           <div class="group-item active">
-            <div class="group-item-icon">📁</div>
-            <div class="group-item-name">我的备忘</div>
-            <div class="group-item-count">20</div>
+            <i class="group-item-icon fas fa-folder" style="color: #22c55e;"></i>
+            <span class="group-item-name">工作笔记</span>
+            <span class="group-item-count">5</span>
             <div class="group-item-actions">
-              <div class="group-action-btn" title="编辑"><i class="fas fa-pen"></i></div>
-              <div class="group-action-btn delete" title="删除"><i class="fas fa-trash-alt"></i></div>
+              <div class="group-action-btn"><i class="fas fa-plus"></i></div>
+              <div class="group-action-btn delete"><i class="fas fa-trash"></i></div>
             </div>
           </div>
-
           <div class="group-item">
-            <div class="group-item-icon">💼</div>
-            <div class="group-item-name">工作笔记</div>
-            <div class="group-item-count">8</div>
+            <i class="group-item-icon fas fa-folder" style="color: #3b82f6;"></i>
+            <span class="group-item-name">项目记录</span>
+            <span class="group-item-count">3</span>
             <div class="group-item-actions">
-              <div class="group-action-btn" title="编辑"><i class="fas fa-pen"></i></div>
-              <div class="group-action-btn delete" title="删除"><i class="fas fa-trash-alt"></i></div>
+              <div class="group-action-btn"><i class="fas fa-plus"></i></div>
+              <div class="group-action-btn delete"><i class="fas fa-trash"></i></div>
             </div>
           </div>
-
           <div class="group-item">
-            <div class="group-item-icon">💡</div>
-            <div class="group-item-name">灵感收集</div>
-            <div class="group-item-count">2</div>
+            <i class="group-item-icon fas fa-folder" style="color: #f59e0b;"></i>
+            <span class="group-item-name">灵感收集</span>
+            <span class="group-item-count">2</span>
             <div class="group-item-actions">
-              <div class="group-action-btn" title="编辑"><i class="fas fa-pen"></i></div>
-              <div class="group-action-btn delete" title="删除"><i class="fas fa-trash-alt"></i></div>
+              <div class="group-action-btn"><i class="fas fa-plus"></i></div>
+              <div class="group-action-btn delete"><i class="fas fa-trash"></i></div>
             </div>
           </div>
-
-          <div class="drag-hint">
-            <i class="fas fa-arrows-alt-v mr-1"></i> 拖拽调整顺序
+          <div class="group-item" style="color: var(--muted-foreground);">
+            <i class="group-item-icon fas fa-plus"></i>
+            <span class="group-item-name">新建分组</span>
           </div>
         </div>
       </nav>
 
-      <!-- 未来能力预留 -->
-      <div class="future-capabilities">
-        <div class="future-item">
-          <i class="fas fa-search"></i>
-          <span>全局搜索</span>
-          <span class="shortcut-hint ml-auto">Ctrl+K</span>
-        </div>
-        <div class="future-item">
-          <i class="fas fa-keyboard"></i>
-          <span>快捷键</span>
-        </div>
-      </div>
-
-      <!-- 底部状态 -->
       <div class="sidebar-footer">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-          <div class="connection-status">
-            <span class="connection-dot online"></span>
-            <span>已连接</span>
-          </div>
-          <div class="theme-switcher">
-            <button class="theme-btn active" data-theme="system" title="跟随系统" style="width: 24px; height: 24px; border-radius: 4px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; background: #2727a8; color: #fff; font-size: 10px;">
-              <i class="fas fa-cog"></i>
-            </button>
-            <button class="theme-btn" data-theme="light" title="亮色模式" style="width: 24px; height: 24px; border-radius: 4px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; background: #27272a; color: #52525b; font-size: 10px;">
-              <i class="fas fa-sun"></i>
-            </button>
-            <button class="theme-btn" data-theme="dark" title="暗色模式" style="width: 24px; height: 24px; border-radius: 4px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; background: #27272a; color: #52525b; font-size: 10px;">
-              <i class="fas fa-moon"></i>
-            </button>
-          </div>
+        <div class="theme-switcher">
+          <div class="theme-btn active" onclick="setTheme('light')">☀️ 浅色</div>
+          <div class="theme-btn" onclick="setTheme('dark')">🌙 深色</div>
         </div>
-        <div class="nav-item" style="padding: 8px 0;">
-          <div class="nav-item-icon"><i class="fas fa-cog"></i></div>
-          <span>设置</span>
+        <div class="connection-status">
+          <div class="connection-dot online"></div>
+          <span>已连接</span>
         </div>
       </div>
     </aside>
@@ -671,90 +1018,74 @@
         <div class="memo-list-header">
           <div class="search-box">
             <i class="fas fa-search"></i>
-            <input type="text" placeholder="搜索标题、内容、标签... (Ctrl+K)">
-          </div>
-          <div class="tag-filter-bar">
-            <span class="tag-chip active">#会议</span>
-            <span class="tag-chip">#工作</span>
-            <span class="tag-chip">#待办</span>
-            <span class="tag-chip">#学习</span>
-            <span class="tag-chip" style="color: #52525b;">+</span>
+            <input type="text" placeholder="搜索备忘录标题或内容...">
           </div>
         </div>
-
+        <div class="tag-filter-bar">
+          <div class="tag-chip active">全部</div>
+          <div class="tag-chip">工作</div>
+          <div class="tag-chip">技术</div>
+          <div class="tag-chip">生活</div>
+        </div>
         <div class="new-memo-btn">
           <i class="fas fa-plus"></i>
-          新建 Memo
+          <span>新建备忘录</span>
         </div>
-
         <div class="memo-items">
-          <!-- 已选中项 -->
           <div class="memo-item active">
-            <div class="memo-item-header">
-              <span class="status-dot normal"></span>
-              <span>normal</span>
-              <span style="margin-left: auto;">10分钟前</span>
-            </div>
-            <div class="memo-item-title">产品需求评审会议纪要</div>
-            <div class="memo-item-preview">讨论了 Q2 季度的核心功能，包括用户反馈系统和数据看板的优先级...</div>
-            <div class="memo-item-footer">
-              <span class="memo-item-tags">
-                <span class="memo-item-tag">#会议</span>
-                <span class="memo-item-tag">#需求</span>
-              </span>
-            </div>
-          </div>
-
-          <!-- 置顶项 -->
-          <div class="memo-item">
-            <div class="memo-item-header">
-              <i class="fas fa-thumbtack text-orange-400" style="font-size: 10px;"></i>
-              <span class="status-dot todo"></span>
-              <span>todo</span>
-              <span style="margin-left: auto;">30分钟前</span>
-            </div>
             <div class="memo-item-title">
-              <i class="fas fa-thumbtack text-orange-400 mr-1" style="font-size: 10px;"></i>
-              每日待办事项
+              <i class="fas fa-thumbtack pinned"></i>
+              <span>产品需求评审会议纪要</span>
             </div>
-            <div class="memo-item-preview">☐ 已完成项目<br>☐ 准备演示文档<br>☐ 回复客户邮件</div>
+            <div class="memo-item-preview">Q2 季度核心需求讨论，包括用户反馈系统、数据看板优化等功能的优先级评估...</div>
             <div class="memo-item-footer">
-              <span class="memo-item-tags">
-                <span class="memo-item-tag">#待办</span>
-              </span>
-            </div>
-          </div>
-
-          <!-- 收藏项 -->
-          <div class="memo-item">
-            <div class="memo-item-header">
-              <i class="fas fa-star text-yellow-500" style="font-size: 10px;"></i>
-              <span class="status-dot done"></span>
-              <span>done</span>
-              <span style="margin-left: auto;">2小时前</span>
-            </div>
-            <div class="memo-item-title">学习 Tauri 2 新特性</div>
-            <div class="memo-item-preview">WebView2、Rust 后端、系统托盘、窗口管理等核心功能...</div>
-            <div class="memo-item-footer">
-              <span class="memo-item-tags">
-                <span class="memo-item-tag">#学习</span>
-              </span>
-            </div>
-          </div>
-
-          <!-- 普通项 -->
-          <div class="memo-item">
-            <div class="memo-item-header">
               <span class="status-dot normal"></span>
-              <span>normal</span>
-              <span style="margin-left: auto;">昨天</span>
+              <span>普通</span>
+              <span>·</span>
+              <span>2024-01-15</span>
+              <span style="flex:1"></span>
+              <span class="memo-item-tag">工作</span>
             </div>
-            <div class="memo-item-title">技术方案设计模板</div>
-            <div class="memo-item-preview">## 背景...</div>
+          </div>
+          <div class="memo-item">
+            <div class="memo-item-title">
+              <i class="far fa-star" style="color: var(--primary);"></i>
+              <span>Tauri 2.0 技术调研</span>
+            </div>
+            <div class="memo-item-preview">调研 Tauri 2.0 的新特性，包括 WebView2 支持、新的插件系统、多窗口管理等...</div>
             <div class="memo-item-footer">
-              <span class="memo-item-tags">
-                <span class="memo-item-tag">#模板</span>
-              </span>
+              <span class="status-dot todo"></span>
+              <span>待办</span>
+              <span>·</span>
+              <span>2024-01-14</span>
+              <span style="flex:1"></span>
+              <span class="memo-item-tag">技术</span>
+            </div>
+          </div>
+          <div class="memo-item">
+            <div class="memo-item-title">
+              <span>React 19 新特性学习笔记</span>
+            </div>
+            <div class="memo-item-preview">学习 React 19 的新特性，包括 Server Components、Actions、use() hook 等...</div>
+            <div class="memo-item-footer">
+              <span class="status-dot done"></span>
+              <span>已完成</span>
+              <span>·</span>
+              <span>2024-01-13</span>
+              <span style="flex:1"></span>
+              <span class="memo-item-tag">技术</span>
+            </div>
+          </div>
+          <div class="memo-item">
+            <div class="memo-item-title">
+              <span>周五聚餐安排</span>
+            </div>
+            <div class="memo-item-preview">周五晚上 7 点，公司附近的海底捞，庆祝项目上线...</div>
+            <div class="memo-item-footer">
+              <span class="status-dot normal"></span>
+              <span>普通</span>
+              <span>·</span>
+              <span>2024-01-12</span>
             </div>
           </div>
         </div>
@@ -762,9 +1093,9 @@
 
       <!-- 编辑器 -->
       <section class="editor">
-        <!-- Markdown 工具栏 -->
+        <!-- 工具栏 -->
         <div class="editor-toolbar">
-          <div class="editor-toolbar-btn" title="加粗 (Ctrl+B)"><i class="fas fa-bold"></i></div>
+          <div class="editor-toolbar-btn active" title="加粗 (Ctrl+B)"><i class="fas fa-bold"></i></div>
           <div class="editor-toolbar-btn" title="斜体 (Ctrl+I)"><i class="fas fa-italic"></i></div>
           <div class="editor-toolbar-btn" title="删除线"><i class="fas fa-strikethrough"></i></div>
           <div class="editor-toolbar-separator"></div>
@@ -772,6 +1103,7 @@
           <div class="editor-toolbar-btn" title="列表"><i class="fas fa-list-ul"></i></div>
           <div class="editor-toolbar-btn" title="数字列表"><i class="fas fa-list-ol"></i></div>
           <div class="editor-toolbar-btn" title="待办"><i class="fas fa-check-square"></i></div>
+          <div class="editor-toolbar-separator"></div>
           <div class="editor-toolbar-btn" title="引用"><i class="fas fa-quote-right"></i></div>
           <div class="editor-toolbar-btn" title="代码"><i class="fas fa-code"></i></div>
           <div class="editor-toolbar-btn" title="链接"><i class="fas fa-link"></i></div>
@@ -790,19 +1122,19 @@
           <input type="text" class="editor-title-input" value="产品需求评审会议纪要" placeholder="无标题">
           <div class="editor-meta">
             <div class="editor-meta-item">
-              <i class="fas fa-folder" style="font-size: 10px;"></i>
+              <i class="fas fa-folder" style="font-size: 11px;"></i>
               <select>
-                <option>我的备忘</option>
                 <option>工作笔记</option>
+                <option>项目记录</option>
                 <option>灵感收集</option>
               </select>
             </div>
             <div class="editor-meta-item">
               <span class="status-dot normal"></span>
               <select>
-                <option value="normal">normal</option>
-                <option value="todo">todo</option>
-                <option value="done">done</option>
+                <option value="normal">普通</option>
+                <option value="todo">待办</option>
+                <option value="done">已完成</option>
               </select>
             </div>
             <div class="editor-meta-item">
@@ -837,8 +1169,8 @@
 
 ## 三、待办事项
 
-- [ ] 与客户确认优先级
-- [ ] 技术方案详细设计
+- [x] 与客户确认优先级
+- [x] 技术方案详细设计
 - [ ] 准备开发资源
 - [ ] 制定测试计划
 
@@ -865,19 +1197,37 @@ const result = await invoke('generate_speech', { text });
             </div>
           </div>
           <div class="editor-footer-right">
-            <button class="px-3 py-1 rounded text-xs" style="background: #27272a; color: #71717a;">
-              <i class="fas fa-archive mr-1"></i>归档
+            <button class="editor-footer-btn secondary">
+              <i class="fas fa-archive"></i>
+              归档
             </button>
-            <button class="px-3 py-1 rounded text-xs" style="background: #27272a; color: #71717a;">
-              <i class="fas fa-star mr-1"></i>收藏
+            <button class="editor-footer-btn secondary">
+              <i class="fas fa-star"></i>
+              收藏
             </button>
-            <button class="px-3 py-1 rounded text-xs" style="background: #2727a8; color: #fff;">
-              保存 <span class="shortcut-hint" style="background: rgba(255,255,255,0.2); margin-left: 4px;">Ctrl+S</span>
+            <button class="editor-footer-btn primary">
+              保存 <span class="shortcut-hint">Ctrl+S</span>
             </button>
           </div>
         </div>
       </section>
     </main>
   </div>
+
+  <script>
+    function setTheme(theme) {
+      const body = document.body;
+      const themeBtns = document.querySelectorAll('.theme-btn');
+      if (theme === 'dark') {
+        body.classList.add('dark');
+        themeBtns[0].classList.remove('active');
+        themeBtns[1].classList.add('active');
+      } else {
+        body.classList.remove('dark');
+        themeBtns[1].classList.remove('active');
+        themeBtns[0].classList.add('active');
+      }
+    }
+  </script>
 </body>
 </html>
