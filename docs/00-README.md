@@ -77,7 +77,7 @@ UniComm 是面向企业的模块化通信平台，支持：
 - 设置页支持中文/日文切换
 - 首次启动根据系统语言自动选择默认界面语言，未支持语言回退中文
 - 前端内置阿里巴巴普惠体 3.0 / Alibaba Sans JP 常用 UI 字重
-- WebSocket 实时同步
+- WebSocket 实时同步（Memo 变更事件触发刷新）
 - 本地缓存支持离线
 - 桌面通知
 
@@ -124,7 +124,7 @@ docs/
 - [x] 实现设置页快捷键配置
 - [x] 实现中文/日文语言切换
 - [x] 配置并内置阿里巴巴普惠体 3.0 / Alibaba Sans JP 字体文件
-- [ ] 配置 WebSocket 连接
+- [x] 配置 WebSocket 连接
 
 ### Phase 3: Memo 开发
 - [x] 搭建 unicomm-server
