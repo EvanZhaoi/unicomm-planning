@@ -61,7 +61,7 @@ UniComm 是面向企业的模块化通信平台，支持：
 
 **功能范围：**
 - 新建/编辑/删除/查看 Memo
-- Markdown 内容、工具栏插入和预览
+- Milkdown Crepe 可视化 Markdown 编辑与 MD 源码视图
 - 分组筛选
 - 状态筛选
 - 标签功能（第二阶段）
@@ -136,7 +136,8 @@ docs/
 - [x] 实现 Memo CRUD API
 - [x] 实现 Memo 前端页面
 - [x] 实现快速 Memo 新增入口
-- [x] 实现 Markdown 工具栏和预览
+- [x] 接入 Milkdown Crepe 可视化 Markdown 编辑器
+- [x] 实现 MD 源码视图切换
 - [x] 实现分组筛选
 - [x] 实现状态筛选
 - [ ] 实现标签功能
