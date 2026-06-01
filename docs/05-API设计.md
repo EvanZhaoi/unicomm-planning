@@ -623,7 +623,7 @@ GET /api/v1/memos?page=1&size=20&groupId=1&keyword=会议
 
 ```java
 public class MemoCreateDTO {
-    // 标题允许为空，保存时后端自动设置为"无标题"
+    // 标题允许为空；空标题保存为空字符串，由前端显示"请输入标题"占位符
     @Size(max = 200, message = "标题最多200字符")
     private String title;
     
