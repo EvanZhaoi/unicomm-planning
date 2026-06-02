@@ -4,7 +4,7 @@
 
 ### 1.1 产品定位
 
-**Memo** 是员工个人备忘录系统，用于：
+**Memo** 是员工备忘录与轻量共享系统，用于：
 
 - 工作记录
 - 临时事项
@@ -19,7 +19,7 @@
 |------|------|
 | 不是业务系统 Memo | 不绑定 systemId / bizId |
 | 不是 IM 附属功能 | 独立模块 |
-| 个人使用 | 不涉及团队协作（当前阶段） |
+| 个人拥有，相关人可见 | Memo 有明确创建者，创建者可以添加相关人，相关人默认仅可查看 |
 
 ### 1.3 风格参考
 
@@ -43,6 +43,8 @@
 | 编辑 Memo | 修改标题、内容 | P0 |
 | 删除 Memo | 逻辑删除 | P0 |
 | 查看 Memo | 查看详情 | P0 |
+| 相关人查看 | 编辑时添加相关人，相关人可以在列表和详情中查看该 Memo | P0 |
+| 实时刷新 | Memo 变更通过 WebSocket 推送给创建者和相关人，桌面端自动刷新 | P0 |
 | 富文本编辑与 MD 源码 | 默认可视化编辑，必要时切换 MD 源码 | P0 |
 | 图片插入 | 本地图片转 base64 写入 content，后续可替换为上传接口 | P0 |
 
@@ -72,6 +74,8 @@
 P0（必须完成）：
 - 新建/编辑/删除/查看 Memo
 - 快速新增 Memo
+- 添加/移除相关人，相关人只读查看
+- WebSocket 实时刷新共享 Memo
 - 分组管理
 - 可视化编辑、MD 源码切换、工具栏和图片插入
 - 分组筛选
@@ -100,7 +104,24 @@ interface Memo {
   isArchived: boolean;  // 是否归档
   createTime: Date;     // 创建时间
   updateTime: Date;     // 更新时间
-  ownerUsername: string;   // 所有者用户名（用于数据隔离）
+  ownerUsername: string;   // 所有者用户名
+  isOwner: boolean;        // 当前用户是否创建者
+  isShared: boolean;       // 当前用户是否通过相关人关系查看
+  relatedUsers: MemoRelatedUser[]; // 相关人列表
+}
+```
+
+### 3.1.1 Memo Related User 实体
+
+```typescript
+interface MemoRelatedUser {
+  id: number;
+  memoId: number;
+  ownerUsername: string;
+  username: string;        // 相关人用户名
+  permission: 'view';      // 当前阶段仅支持查看，后续可扩展 edit
+  createTime: Date;
+  updateTime: Date;
 }
 ```
 
@@ -115,7 +136,7 @@ interface MemoGroup {
   sortOrder: number;   // 排序
   createTime: Date;     // 创建时间
   updateTime: Date;     // 更新时间
-  ownerUsername: string;   // 所有者用户名（用于数据隔离）
+  ownerUsername: string;   // 所有者用户名
 }
 ```
 
@@ -127,7 +148,7 @@ interface MemoTag {
   name: string;        // 标签名称
   color: string;       // 颜色
   createTime: Date;     // 创建时间
-  ownerUsername: string;   // 所有者用户名（用于数据隔离）
+  ownerUsername: string;   // 所有者用户名
 }
 ```
 
@@ -136,6 +157,7 @@ interface MemoTag {
 ```
 Memo 1:N Group
 Memo N:M Tag（通过中间表，第二阶段实现）
+Memo 1:N RelatedUser（创建者添加相关人，相关人只读查看）
 ```
 
 ## 四、功能详细说明
@@ -221,6 +243,24 @@ Memo N:M Tag（通过中间表，第二阶段实现）
 4. 通过工具栏插入格式或图片
 5. 如需修改 Markdown，切换到 MD 源码视图；如需对照修改，切换到双栏视图
 5. 点击保存
+
+### 4.2.1 添加相关人
+
+相关人用于让指定员工查看该 Memo。当前阶段相关人权限为只读，创建者仍是唯一可以编辑、删除、归档、置顶和调整分组的人。
+
+1. 创建者打开 Memo 编辑界面
+2. 在相关人区域输入用户名并回车
+3. 保存 Memo
+4. 后端替换该 Memo 的相关人列表
+5. WebSocket 向创建者和相关人推送 `memo.updated` 或 `memo.related.updated`
+6. 相关人桌面端收到事件后刷新列表，可看到该 Memo
+
+**约束：**
+
+- 创建者不能把自己添加为相关人
+- 重复用户名会自动去重
+- 当前阶段不做多人同时编辑，相关人仅查看
+- 后续接入员工搜索接口后，输入框可升级为搜索选择组件
 
 **边界情况：**
 - 内容为空时提示"内容不能为空"
@@ -540,7 +580,9 @@ Milkdown Crepe 内置浮动工具栏、块级菜单、图片菜单 | 可视化 |
 
 ### 8.2 数据安全
 
-- 用户只能访问自己的 Memo
+- 用户可以访问自己创建的 Memo，以及别人共享给自己的 Memo
+- 创建者拥有编辑、删除、归档、置顶、收藏和维护相关人的权限
+- 相关人当前阶段仅可查看共享 Memo
 - 逻辑删除，数据可恢复
 - 敏感操作需记录日志
 

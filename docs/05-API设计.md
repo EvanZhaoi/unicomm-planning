@@ -146,7 +146,7 @@ Content-Type: application/json
 **注意事项:**
 - 用户身份必须以后端调用公司人员接口返回结果为准
 - 前端传来的 username 只是身份线索，不能直接信任
-- 后端签发 Token 后，Memo 数据通过 owner_username 进行隔离
+- 后端签发 Token 后，Memo 通过 owner_username 标识创建者，并通过 relatedUsers 控制共享可见范围
 
 ---
 
@@ -185,6 +185,7 @@ GET /api/v1/memos?page=1&size=20&groupId=1&keyword=会议
     "list": [
       {
         "id": 1,
+        "ownerUsername": "evan.zhao",
         "title": "会议纪要",
         "content": "# 会议纪要\n...",
         "groupId": 1,
@@ -193,6 +194,11 @@ GET /api/v1/memos?page=1&size=20&groupId=1&keyword=会议
         "isTop": false,
         "isFavorite": true,
         "isArchived": false,
+        "isOwner": true,
+        "isShared": false,
+        "relatedUsers": [
+          {"id": 1, "username": "leader.wang", "permission": "view"}
+        ],
         "tags": [{"id": 1, "name": "工作", "color": "#2563EB"}],
         "createTime": "2024-01-01 10:00:00",
         "updateTime": "2024-01-01 10:00:00"
@@ -225,6 +231,7 @@ GET /api/v1/memos?page=1&size=20&groupId=1&keyword=会议
   "message": "success",
   "data": {
     "id": 1,
+    "ownerUsername": "evan.zhao",
     "title": "会议纪要",
     "content": "# 会议纪要\n...",
     "groupId": 1,
@@ -233,6 +240,11 @@ GET /api/v1/memos?page=1&size=20&groupId=1&keyword=会议
     "isTop": false,
     "isFavorite": true,
     "isArchived": false,
+    "isOwner": true,
+    "isShared": false,
+    "relatedUsers": [
+      {"id": 1, "username": "leader.wang", "permission": "view"}
+    ],
     "tags": [
       {"id": 1, "name": "工作", "color": "#2563EB"},
       {"id": 2, "name": "重要", "color": "#DC2626"}
@@ -256,6 +268,7 @@ GET /api/v1/memos?page=1&size=20&groupId=1&keyword=会议
   "content": "# 标题\n内容...",
   "groupId": 1,
   "status": "normal",
+  "relatedUsernames": ["leader.wang"],
   "tagIds": [1, 2]
 }
 ```
@@ -268,6 +281,7 @@ GET /api/v1/memos?page=1&size=20&groupId=1&keyword=会议
 | content | string | 否 | Markdown 内容 |
 | groupId | long | 否 | 分组 ID，默认创建默认分组 |
 | status | string | 否 | 状态，默认 normal |
+| relatedUsernames | array | 否 | 相关人用户名数组，相关人可查看该 Memo |
 | tagIds | array | 否 | 标签 ID 数组 |
 
 **响应示例:**
@@ -310,6 +324,7 @@ GET /api/v1/memos?page=1&size=20&groupId=1&keyword=会议
   "content": "更新后的内容...",
   "groupId": 2,
   "status": "done",
+  "relatedUsernames": ["leader.wang", "pm.li"],
   "tagIds": [1, 3]
 }
 ```
@@ -337,6 +352,29 @@ GET /api/v1/memos?page=1&size=20&groupId=1&keyword=会议
   }
 }
 ```
+
+---
+
+### 2.4.1 更新 Memo 相关人
+
+**接口:** `PUT /api/v1/memos/{id}/related-users`
+
+**说明:** 创建者替换该 Memo 的完整相关人列表。当前阶段相关人权限固定为 `view`，即只能查看。
+
+**路径参数:**
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| id | long | 是 | Memo ID |
+
+**请求体:**
+```json
+{
+  "relatedUsernames": ["leader.wang", "pm.li"]
+}
+```
+
+**响应:** 返回更新后的 `MemoVO`，包含 `relatedUsers`。
 
 ---
 
@@ -702,6 +740,7 @@ public class MemoVO {
 | 获取 Memo 详情 | GET | /api/v1/memos/{id} | |
 | 创建 Memo | POST | /api/v1/memos | |
 | 更新 Memo | PUT | /api/v1/memos/{id} | |
+| 更新 Memo 相关人 | PUT | /api/v1/memos/{id}/related-users | 创建者维护相关人，相关人只读查看 |
 | 删除 Memo | DELETE | /api/v1/memos/{id} | |
 | 置顶/取消置顶 | PATCH | /api/v1/memos/{id}/top | |
 | 收藏/取消收藏 | PATCH | /api/v1/memos/{id}/favorite | |
