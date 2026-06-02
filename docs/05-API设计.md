@@ -197,7 +197,15 @@ GET /api/v1/memos?page=1&size=20&groupId=1&keyword=会议
         "isOwner": true,
         "isShared": false,
         "relatedUsers": [
-          {"id": 1, "username": "leader.wang", "permission": "view"}
+          {
+            "id": 1,
+            "username": "leader.wang",
+            "employeeNo": "E10004",
+            "displayName": "Leader Wang",
+            "departmentName": "Management",
+            "email": "leader.wang@company.com",
+            "permission": "view"
+          }
         ],
         "tags": [{"id": 1, "name": "工作", "color": "#2563EB"}],
         "createTime": "2024-01-01 10:00:00",
@@ -243,7 +251,15 @@ GET /api/v1/memos?page=1&size=20&groupId=1&keyword=会议
     "isOwner": true,
     "isShared": false,
     "relatedUsers": [
-      {"id": 1, "username": "leader.wang", "permission": "view"}
+      {
+        "id": 1,
+        "username": "leader.wang",
+        "employeeNo": "E10004",
+        "displayName": "Leader Wang",
+        "departmentName": "Management",
+        "email": "leader.wang@company.com",
+        "permission": "view"
+      }
     ],
     "tags": [
       {"id": 1, "name": "工作", "color": "#2563EB"},
@@ -375,6 +391,38 @@ GET /api/v1/memos?page=1&size=20&groupId=1&keyword=会议
 ```
 
 **响应:** 返回更新后的 `MemoVO`，包含 `relatedUsers`。
+
+---
+
+### 2.4.2 搜索成员
+
+**接口:** `GET /api/v1/members/search`
+
+**说明:** 前端相关人选择器使用该接口按姓名、用户名、工号或邮箱模糊搜索员工成员。当前阶段数据源为后端临时员工缓存，后续替换为公司人员接口。
+
+**请求参数:**
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| keyword | string | 否 | 搜索关键词，支持姓名、用户名、工号、邮箱 |
+| limit | int | 否 | 返回数量，默认 10，最大 20 |
+
+**响应示例:**
+```json
+{
+  "code": 200,
+  "message": "success",
+  "data": [
+    {
+      "username": "leader.wang",
+      "employeeNo": "E10004",
+      "displayName": "Leader Wang",
+      "departmentName": "Management",
+      "email": "leader.wang@company.com"
+    }
+  ]
+}
+```
 
 ---
 
@@ -741,6 +789,7 @@ public class MemoVO {
 | 创建 Memo | POST | /api/v1/memos | |
 | 更新 Memo | PUT | /api/v1/memos/{id} | |
 | 更新 Memo 相关人 | PUT | /api/v1/memos/{id}/related-users | 创建者维护相关人，相关人只读查看 |
+| 搜索成员 | GET | /api/v1/members/search | 按姓名、用户名、工号、邮箱模糊搜索 |
 | 删除 Memo | DELETE | /api/v1/memos/{id} | |
 | 置顶/取消置顶 | PATCH | /api/v1/memos/{id}/top | |
 | 收藏/取消收藏 | PATCH | /api/v1/memos/{id}/favorite | |
