@@ -166,7 +166,6 @@ Content-Type: application/json
 | status | string | 否 | 状态筛选: normal/todo/done |
 | keyword | string | 否 | 搜索关键词（标题+内容） |
 | tagIds | string | 否 | 标签 ID，多个用逗号分隔 |
-| isArchived | boolean | 否 | 是否归档筛选 |
 | isFavorite | boolean | 否 | 是否收藏筛选 |
 | sortBy | string | 否 | 排序字段，默认 updateTime |
 | sortOrder | string | 否 | 排序方向: asc/desc，默认 desc |
@@ -193,7 +192,6 @@ GET /api/v1/memos?page=1&size=20&groupId=1&keyword=会议
         "status": "normal",
         "isTop": false,
         "isFavorite": true,
-        "isArchived": false,
         "isOwner": true,
         "isShared": false,
         "relatedUsers": [
@@ -247,7 +245,6 @@ GET /api/v1/memos?page=1&size=20&groupId=1&keyword=会议
     "status": "normal",
     "isTop": false,
     "isFavorite": true,
-    "isArchived": false,
     "isOwner": true,
     "isShared": false,
     "relatedUsers": [
@@ -313,7 +310,6 @@ GET /api/v1/memos?page=1&size=20&groupId=1&keyword=会议
     "status": "normal",
     "isTop": false,
     "isFavorite": false,
-    "isArchived": false,
     "tags": [],
     "createTime": "2024-01-01 10:00:00",
     "updateTime": "2024-01-01 10:00:00"
@@ -358,7 +354,6 @@ GET /api/v1/memos?page=1&size=20&groupId=1&keyword=会议
     "status": "done",
     "isTop": false,
     "isFavorite": false,
-    "isArchived": false,
     "tags": [
       {"id": 1, "name": "工作", "color": "#2563EB"},
       {"id": 3, "name": "完成", "color": "#16A34A"}
@@ -375,7 +370,7 @@ GET /api/v1/memos?page=1&size=20&groupId=1&keyword=会议
 
 **接口:** `PUT /api/v1/memos/{id}/related-users`
 
-**说明:** 创建者替换该 Memo 的完整相关人列表。当前阶段相关人权限固定为 `view`，即只能查看。
+**说明:** 创建者替换该 Memo 的完整相关人列表。相关人权限支持 `view`（只读）与 `edit`（可编辑标题、正文和状态）。
 
 **路径参数:**
 
@@ -497,31 +492,6 @@ GET /api/v1/memos?page=1&size=20&groupId=1&keyword=会议
   "data": {
     "id": 1,
     "isFavorite": true
-  }
-}
-```
-
----
-
-### 2.8 归档/取消归档
-
-**接口:** `PATCH /api/v1/memos/{id}/archive`
-
-**请求体:**
-```json
-{
-  "isArchived": true
-}
-```
-
-**响应示例:**
-```json
-{
-  "code": 200,
-  "message": "success",
-  "data": {
-    "id": 1,
-    "isArchived": true
   }
 }
 ```
@@ -752,7 +722,6 @@ public class MemoQueryDTO {
     private String status;
     private String keyword;
     private List<Long> tagIds;
-    private Boolean isArchived;
     private Boolean isFavorite;
     private String sortBy = "updateTime";
     private String sortOrder = "desc";
@@ -771,7 +740,6 @@ public class MemoVO {
     private String status;
     private Boolean isTop;
     private Boolean isFavorite;
-    private Boolean isArchived;
     private List<TagVO> tags;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
@@ -793,7 +761,6 @@ public class MemoVO {
 | 删除 Memo | DELETE | /api/v1/memos/{id} | |
 | 置顶/取消置顶 | PATCH | /api/v1/memos/{id}/top | |
 | 收藏/取消收藏 | PATCH | /api/v1/memos/{id}/favorite | |
-| 归档/取消归档 | PATCH | /api/v1/memos/{id}/archive | |
 | 获取分组列表 | GET | /api/v1/memo-groups | |
 | 创建分组 | POST | /api/v1/memo-groups | |
 | 更新分组 | PUT | /api/v1/memo-groups/{id} | |
