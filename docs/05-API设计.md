@@ -738,7 +738,7 @@ public class MemoVO {
 | 获取 Memo 详情 | GET | /api/v1/memos/{id} | |
 | 创建 Memo | POST | /api/v1/memos | |
 | 更新 Memo | PUT | /api/v1/memos/{id} | |
-| 更新 Memo 相关人 | PUT | /api/v1/memos/{id}/related-users | 创建者维护相关人，相关人只读查看 |
+| 更新 Memo 相关人 | PUT | /api/v1/memos/{id}/related-users | 创建者维护相关人和 view/edit 权限 |
 | 搜索成员 | GET | /api/v1/members/search | 按姓名、用户名、工号、邮箱模糊搜索 |
 | 删除 Memo | DELETE | /api/v1/memos/{id} | |
 | 置顶/取消置顶 | PATCH | /api/v1/memos/{id}/top | |
