@@ -165,7 +165,7 @@ Content-Type: application/json
 | groupId | long | 否 | 分组筛选 |
 | status | string | 否 | 状态筛选: normal/todo/done |
 | keyword | string | 否 | 搜索关键词（标题+内容） |
-| tagIds | string | 否 | 标签 ID，多个用逗号分隔 |
+| tagId | long | 否 | 标签筛选 |
 | isFavorite | boolean | 否 | 是否收藏筛选 |
 | sortBy | string | 否 | 排序字段，默认 updateTime |
 | sortOrder | string | 否 | 排序方向: asc/desc，默认 desc |
@@ -654,25 +654,6 @@ GET /api/v1/memos?page=1&size=20&groupId=1&keyword=会议
 
 ---
 
-### 4.5 给 Memo 添加标签
-
-**接口:** `POST /api/v1/memos/{memoId}/tags`
-
-**请求体:**
-```json
-{
-  "tagIds": [1, 2, 3]
-}
-```
-
----
-
-### 4.6 移除 Memo 的标签
-
-**接口:** `DELETE /api/v1/memos/{memoId}/tags/{tagId}`
-
----
-
 ## 五、DTO 定义
 
 ### 5.1 创建 DTO
@@ -721,7 +702,7 @@ public class MemoQueryDTO {
     private Long groupId;
     private String status;
     private String keyword;
-    private List<Long> tagIds;
+    private Long tagId;
     private Boolean isFavorite;
     private String sortBy = "updateTime";
     private String sortOrder = "desc";
@@ -770,5 +751,3 @@ public class MemoVO {
 | 创建标签 | POST | /api/v1/memo-tags | |
 | 更新标签 | PUT | /api/v1/memo-tags/{id} | |
 | 删除标签 | DELETE | /api/v1/memo-tags/{id} | |
-| 添加标签到 Memo | POST | /api/v1/memos/{memoId}/tags | |
-| 移除 Memo 标签 | DELETE | /api/v1/memos/{memoId}/tags/{tagId} | |

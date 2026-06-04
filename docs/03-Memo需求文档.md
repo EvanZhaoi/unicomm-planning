@@ -81,8 +81,7 @@ P0（必须完成）：
 - 状态筛选
 - 标题搜索
 
-P1（第二阶段）：
-- 标签功能
+P1：
 - 置顶/收藏
 - 内容搜索
 ```
@@ -138,7 +137,7 @@ interface MemoGroup {
 }
 ```
 
-### 3.3 Memo Tag 实体（第二阶段）
+### 3.3 Memo Tag 实体
 
 ```typescript
 interface MemoTag {
@@ -154,7 +153,7 @@ interface MemoTag {
 
 ```
 Memo 1:N Group
-Memo N:M Tag（通过中间表，第二阶段实现）
+Memo N:M Tag（通过中间表实现）
 Memo 1:N RelatedUser（创建者添加相关人，相关人只读查看）
 ```
 
@@ -325,7 +324,7 @@ Memo 1:N RelatedUser（创建者添加相关人，相关人只读查看）
 **筛选条件：**
 - 分组（groupId）
 - 状态（status: normal/todo/done）
-- 标签（tagIds，第二阶段）
+- 标签（tagId）
 - 时间范围（createTime）
 
 **搜索响应：**
