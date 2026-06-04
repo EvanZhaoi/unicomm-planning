@@ -166,6 +166,7 @@ Content-Type: application/json
 | status | string | 否 | 状态筛选: normal/todo/done |
 | keyword | string | 否 | 搜索关键词（标题+内容） |
 | tagId | long | 否 | 标签筛选 |
+| isShared | boolean | 否 | 是否只查询别人共享给当前用户的 Memo |
 | isFavorite | boolean | 否 | 是否收藏筛选 |
 | sortBy | string | 否 | 排序字段，默认 updateTime |
 | sortOrder | string | 否 | 排序方向: asc/desc，默认 desc |
