@@ -165,7 +165,6 @@ Content-Type: application/json
 | groupId | long | 否 | 分组筛选 |
 | status | string | 否 | 状态筛选: normal/todo/done |
 | keyword | string | 否 | 搜索关键词（标题+内容） |
-| tagId | long | 否 | 标签筛选 |
 | isShared | boolean | 否 | 是否只查询别人共享给当前用户的 Memo |
 | isFavorite | boolean | 否 | 是否收藏筛选 |
 | sortBy | string | 否 | 排序字段，默认 updateTime |
@@ -206,7 +205,6 @@ GET /api/v1/memos?page=1&size=20&groupId=1&keyword=会议
             "permission": "view"
           }
         ],
-        "tags": [{"id": 1, "name": "工作", "color": "#2563EB"}],
         "createTime": "2024-01-01 10:00:00",
         "updateTime": "2024-01-01 10:00:00"
       }
@@ -259,10 +257,6 @@ GET /api/v1/memos?page=1&size=20&groupId=1&keyword=会议
         "permission": "view"
       }
     ],
-    "tags": [
-      {"id": 1, "name": "工作", "color": "#2563EB"},
-      {"id": 2, "name": "重要", "color": "#DC2626"}
-    ],
     "createTime": "2024-01-01 10:00:00",
     "updateTime": "2024-01-01 10:00:00"
   }
@@ -282,8 +276,7 @@ GET /api/v1/memos?page=1&size=20&groupId=1&keyword=会议
   "content": "# 标题\n内容...",
   "groupId": 1,
   "status": "normal",
-  "relatedUsernames": ["leader.wang"],
-  "tagIds": [1, 2]
+  "relatedUsernames": ["leader.wang"]
 }
 ```
 
@@ -296,7 +289,6 @@ GET /api/v1/memos?page=1&size=20&groupId=1&keyword=会议
 | groupId | long | 否 | 分组 ID，默认创建默认分组 |
 | status | string | 否 | 状态，默认 normal |
 | relatedUsernames | array | 否 | 相关人用户名数组，相关人可查看该 Memo |
-| tagIds | array | 否 | 标签 ID 数组 |
 
 **响应示例:**
 ```json
@@ -311,7 +303,6 @@ GET /api/v1/memos?page=1&size=20&groupId=1&keyword=会议
     "status": "normal",
     "isTop": false,
     "isFavorite": false,
-    "tags": [],
     "createTime": "2024-01-01 10:00:00",
     "updateTime": "2024-01-01 10:00:00"
   }
@@ -337,8 +328,7 @@ GET /api/v1/memos?page=1&size=20&groupId=1&keyword=会议
   "content": "更新后的内容...",
   "groupId": 2,
   "status": "done",
-  "relatedUsernames": ["leader.wang", "pm.li"],
-  "tagIds": [1, 3]
+  "relatedUsernames": ["leader.wang", "pm.li"]
 }
 ```
 
@@ -355,10 +345,6 @@ GET /api/v1/memos?page=1&size=20&groupId=1&keyword=会议
     "status": "done",
     "isTop": false,
     "isFavorite": false,
-    "tags": [
-      {"id": 1, "name": "工作", "color": "#2563EB"},
-      {"id": 3, "name": "完成", "color": "#16A34A"}
-    ],
     "createTime": "2024-01-01 10:00:00",
     "updateTime": "2024-01-01 11:00:00"
   }
@@ -609,52 +595,6 @@ GET /api/v1/memos?page=1&size=20&groupId=1&keyword=会议
 
 ---
 
-## 四、Memo Tag 接口
-
-### 4.1 获取标签列表
-
-**接口:** `GET /api/v1/memo-tags`
-
-**响应示例:**
-```json
-{
-  "code": 200,
-  "message": "success",
-  "data": [
-    {"id": 1, "name": "工作", "color": "#2563EB", "memoCount": 10},
-    {"id": 2, "name": "重要", "color": "#DC2626", "memoCount": 5}
-  ]
-}
-```
-
----
-
-### 4.2 创建标签
-
-**接口:** `POST /api/v1/memo-tags`
-
-**请求体:**
-```json
-{
-  "name": "新标签",
-  "color": "#16A34A"
-}
-```
-
----
-
-### 4.3 更新标签
-
-**接口:** `PUT /api/v1/memo-tags/{id}`
-
----
-
-### 4.4 删除标签
-
-**接口:** `DELETE /api/v1/memo-tags/{id}`
-
----
-
 ## 五、DTO 定义
 
 ### 5.1 创建 DTO
@@ -672,7 +612,6 @@ public class MemoCreateDTO {
     @Pattern(regexp = "^(normal|todo|done)$", message = "状态值不合法")
     private String status = "normal";
     
-    private List<Long> tagIds;
 }
 ```
 
@@ -690,7 +629,6 @@ public class MemoUpdateDTO {
     @Pattern(regexp = "^(normal|todo|done)$", message = "状态值不合法")
     private String status;
     
-    private List<Long> tagIds;
 }
 ```
 
@@ -703,7 +641,6 @@ public class MemoQueryDTO {
     private Long groupId;
     private String status;
     private String keyword;
-    private Long tagId;
     private Boolean isFavorite;
     private String sortBy = "updateTime";
     private String sortOrder = "desc";
@@ -722,7 +659,6 @@ public class MemoVO {
     private String status;
     private Boolean isTop;
     private Boolean isFavorite;
-    private List<TagVO> tags;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
 }
@@ -748,7 +684,3 @@ public class MemoVO {
 | 更新分组 | PUT | /api/v1/memo-groups/{id} | |
 | 删除分组 | DELETE | /api/v1/memo-groups/{id} | |
 | 分组排序 | PATCH | /api/v1/memo-groups/sort | |
-| 获取标签列表 | GET | /api/v1/memo-tags | |
-| 创建标签 | POST | /api/v1/memo-tags | |
-| 更新标签 | PUT | /api/v1/memo-tags/{id} | |
-| 删除标签 | DELETE | /api/v1/memo-tags/{id} | |

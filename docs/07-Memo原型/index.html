@@ -478,31 +478,6 @@
       transform: translateY(0);
     }
 
-    /* 标签筛选条 */
-    .tag-filter-bar {
-      display: flex;
-      gap: var(--space-xs);
-      padding: 0 var(--space-md) var(--space-sm);
-      flex-wrap: wrap;
-    }
-    .tag-chip {
-      font-size: 10px;
-      padding: 3px 8px;
-      border-radius: 10px;
-      background: var(--muted);
-      color: var(--muted-foreground);
-      cursor: pointer;
-      transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .tag-chip:hover {
-      background: var(--secondary);
-      color: var(--foreground);
-    }
-    .tag-chip.active {
-      background: var(--primary);
-      color: var(--primary-foreground);
-    }
-
     /* ========================================
        Memo 列表项
        ======================================== */
@@ -558,13 +533,6 @@
       font-size: 10px;
       color: var(--muted-foreground);
     }
-    .memo-item-tag {
-      background: var(--muted);
-      padding: 2px 6px;
-      border-radius: var(--radius-sm);
-      margin-right: 4px;
-    }
-
     /* ========================================
        编辑器
        ======================================== */
@@ -1021,12 +989,6 @@
             <input type="text" placeholder="搜索备忘录标题或内容...">
           </div>
         </div>
-        <div class="tag-filter-bar">
-          <div class="tag-chip active">全部</div>
-          <div class="tag-chip">工作</div>
-          <div class="tag-chip">技术</div>
-          <div class="tag-chip">生活</div>
-        </div>
         <div class="new-memo-btn">
           <i class="fas fa-plus"></i>
           <span>新建备忘录</span>
@@ -1043,8 +1005,6 @@
               <span>普通</span>
               <span>·</span>
               <span>2024-01-15</span>
-              <span style="flex:1"></span>
-              <span class="memo-item-tag">工作</span>
             </div>
           </div>
           <div class="memo-item">
@@ -1058,8 +1018,6 @@
               <span>待办</span>
               <span>·</span>
               <span>2024-01-14</span>
-              <span style="flex:1"></span>
-              <span class="memo-item-tag">技术</span>
             </div>
           </div>
           <div class="memo-item">
@@ -1072,8 +1030,6 @@
               <span>已完成</span>
               <span>·</span>
               <span>2024-01-13</span>
-              <span style="flex:1"></span>
-              <span class="memo-item-tag">技术</span>
             </div>
           </div>
           <div class="memo-item">
