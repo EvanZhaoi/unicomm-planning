@@ -11,11 +11,12 @@
 > **认证流程：**
 > 1. 应用启动时调用 `/api/v1/auth/desktop/verify` 验证 Windows 用户
 > 2. 验证成功后，后端返回 `accessToken`
-> 3. 后续 API 请求使用 `Authorization: Bearer {accessToken}`
+> 3. 后续 API 请求使用 `unicomm-token: {accessToken}`，并兼容携带 `Authorization: Bearer {accessToken}`
 > 4. 后端使用 Sa-Token 管理桌面端认证后的会话 Token
 
 **统一请求头:**
 ```
+unicomm-token: {accessToken}
 Authorization: Bearer {accessToken}
 Content-Type: application/json
 ```
@@ -147,6 +148,8 @@ Content-Type: application/json
 - 用户身份必须以后端调用公司人员接口返回结果为准
 - 前端传来的 username 只是身份线索，不能直接信任
 - 后端签发 Token 后，Memo 通过 owner_username 标识创建者，并通过 relatedUsers 控制共享可见范围
+- 除认证接口和 Swagger 文档外，`/api/v1/**` 请求必须携带 Sa-Token；当前后端 token-name 为 `unicomm-token`
+- Memo 模块不再使用开发期默认用户名兜底，未登录或 Token 失效时返回 401
 
 ---
 
