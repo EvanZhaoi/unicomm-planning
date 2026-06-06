@@ -370,9 +370,11 @@ GET /api/v1/memos?page=1&size=20&groupId=1&keyword=会议
 | PUT /memos/{id} 修改标题/正文/状态 | 是 | 是 | 否 |
 | PUT /memos/{id} 调整 groupId | 是 | 否 | 否 |
 | PUT /memos/{id}/related-users | 是 | 否 | 否 |
-| PATCH top/favorite、DELETE | 是 | 否 | 否 |
+| PATCH top、DELETE | 是 | 否 | 否 |
+| PATCH favorite | 是 | 是 | 是 |
 
 服务端通过 Token loginId 判断当前用户身份，不信任前端传入 owner 或权限字段。
+收藏状态通过当前 Token 用户与 Memo 的关系表记录，不能写入 Memo 主表。
 
 **路径参数:**
 
@@ -478,6 +480,8 @@ GET /api/v1/memos?page=1&size=20&groupId=1&keyword=会议
 ### 2.7 收藏/取消收藏
 
 **接口:** `PATCH /api/v1/memos/{id}/favorite`
+
+**说明:** 收藏是当前用户自己的状态。创建者、`edit` 相关人、`view` 相关人只要能查看该 Memo，就可以收藏或取消收藏；不会影响其他用户的收藏状态。
 
 **请求体:**
 ```json
