@@ -362,6 +362,18 @@ GET /api/v1/memos?page=1&size=20&groupId=1&keyword=会议
 
 **说明:** 创建者替换该 Memo 的完整相关人列表。相关人权限支持 `view`（只读）与 `edit`（可编辑标题、正文和状态）。
 
+**权限规则:**
+
+| 操作 | owner | edit 相关人 | view 相关人 |
+|------|-------|-------------|-------------|
+| GET /memos、GET /memos/{id} | 是 | 是 | 是 |
+| PUT /memos/{id} 修改标题/正文/状态 | 是 | 是 | 否 |
+| PUT /memos/{id} 调整 groupId | 是 | 否 | 否 |
+| PUT /memos/{id}/related-users | 是 | 否 | 否 |
+| PATCH top/favorite、DELETE | 是 | 否 | 否 |
+
+服务端通过 Token loginId 判断当前用户身份，不信任前端传入 owner 或权限字段。
+
 **路径参数:**
 
 | 参数 | 类型 | 必填 | 说明 |
