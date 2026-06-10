@@ -41,15 +41,15 @@ UniComm 是面向企业的模块化通信平台，支持：
 - **容器**：Tauri 2
 - **UI**：React + TypeScript
 - **构建**：Vite
-- **状态**：Zustand 为主，TanStack Query 已安装但当前 Memo 数据流暂未启用
+- **状态**：Zustand 管 UI 状态，TanStack Query 管服务端缓存与请求去重
 - **样式**：TailwindCSS
 - **字体**：阿里巴巴普惠体 3.0 / Alibaba Sans JP，字体文件内置到桌面端
 - **语言**：中文 / 日文
 
 ### 后端（unicomm-server）
 - **框架**：Spring Boot 4.0.6 + Java 21
-- **数据访问**：Spring JDBC / JdbcTemplate
-- **缓存**：当前未接入 Redis，后续用于热点数据、分布式会话或 WebSocket 多实例转发
+- **数据访问**：MyBatis-Plus + Spring JDBC 渐进式迁移，复杂查询保留手写 SQL
+- **缓存**：Redis 已接入依赖与配置，业务层按模块逐步启用
 - **实时**：WebSocket
 - **认证**：Sa-Token
 
