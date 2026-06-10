@@ -31,7 +31,7 @@ UniComm 是面向企业的模块化通信平台，支持：
 - `unicomm-planning` - 项目规划、需求文档、技术方案
 
 ### 正式项目（后续）
-- `unicomm-server` - 后端服务（Spring Boot 4 + Java 21）
+- `unicomm-server` - 后端服务（Spring Boot 4.0.6 + Java 21）
 - `unicomm-desktop` - 桌面应用（Tauri 2 + React + TypeScript）
 - `unicomm-plugin` - 插件系统（未来）
 
@@ -41,15 +41,15 @@ UniComm 是面向企业的模块化通信平台，支持：
 - **容器**：Tauri 2
 - **UI**：React + TypeScript
 - **构建**：Vite
-- **状态**：Zustand + TanStack Query
+- **状态**：Zustand 为主，TanStack Query 已安装但当前 Memo 数据流暂未启用
 - **样式**：TailwindCSS
 - **字体**：阿里巴巴普惠体 3.0 / Alibaba Sans JP，字体文件内置到桌面端
 - **语言**：中文 / 日文
 
 ### 后端（unicomm-server）
-- **框架**：Spring Boot 4 + Java 21
+- **框架**：Spring Boot 4.0.6 + Java 21
 - **数据访问**：Spring JDBC / JdbcTemplate
-- **缓存**：Redis
+- **缓存**：当前未接入 Redis，后续用于热点数据、分布式会话或 WebSocket 多实例转发
 - **实时**：WebSocket
 - **认证**：Sa-Token
 
@@ -88,11 +88,11 @@ UniComm 是面向企业的模块化通信平台，支持：
 - WebSocket 实时同步（握手校验 Sa-Token，Memo 变更事件按创建者和相关人连接级推送）
 - Tauri IPC 使用 `ipc.localhost` 内部通道调用桌面能力，发布前需要配置 CSP 并检查 capabilities
 - 本地缓存支持离线（后续增强）
-- 桌面通知（未来，不在当前主导航展示）
+- 桌面系统通知（Memo 更新通知已接入基础弹窗和点击跳转；企业级通知平台后续扩展）
 
 **禁止开发：**
 - IM（未来）
-- Notify（未来）
+- Notify 企业通知平台（未来；当前仅保留通知中心和 Memo 通知基础能力）
 - AI（未来）
 - 插件系统（未来）
 
@@ -107,8 +107,12 @@ docs/
 ├── 04-数据库设计.md         # Memo 数据库设计
 ├── 05-API设计.md            # Memo API 设计
 ├── 06-桌面端目录结构.md       # 桌面端项目结构
-└── 07-Memo原型/            # Memo HTML 原型
-    └── index.html
+├── 07-Memo原型/            # Memo HTML 原型
+│   └── index.html
+├── 08-认证架构设计.md       # 桌面认证、设备信任、验证码和人员 API 接入方案
+├── 09-HTTP基础设施设计.md   # HTTP client、错误体系、拦截器设计
+├── 10-前端设计规范.md       # 视觉、交互、布局规范
+└── 11-前后端企业级结构审查.md # 当前真实结构、分层规范和技术栈审查
 ```
 
 ## 开发规划
