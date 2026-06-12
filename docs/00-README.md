@@ -48,7 +48,7 @@ UniComm 是面向企业的模块化通信平台，支持：
 
 ### 后端（unicomm-server）
 - **框架**：Spring Boot 4.0.6 + Java 21
-- **数据访问**：MyBatis-Plus + Spring JDBC 渐进式迁移，复杂查询保留手写 SQL
+- **数据访问**：MyBatis-Plus Mapper，复杂查询保留 Mapper 显式 SQL
 - **缓存**：Redis 已接入依赖与配置，业务层按模块逐步启用
 - **实时**：WebSocket
 - **认证**：Sa-Token
