@@ -432,6 +432,70 @@ GET /api/v1/memos?page=1&size=20&groupId=1&keyword=会议
 
 ---
 
+### 2.4.3 通用通知平台
+
+通用通知独立于 Memo 模块，面向后续外部系统接入。当前阶段接口沿用桌面端 Sa-Token 认证，外部系统正式接入前需要增加 appKey/appSecret、签名、限流和来源系统权限。
+
+#### 创建通用通知
+
+**接口:** `POST /api/v1/notifications`
+
+**请求体:**
+```json
+{
+  "title": "审批任务已更新",
+  "body": "采购申请 PA-20260628 已进入复核节点",
+  "level": "info",
+  "sourceSystem": "workflow",
+  "sourceType": "approval",
+  "sourceId": "PA-20260628",
+  "targetUrl": "unicomm://workflow/approval/PA-20260628",
+  "recipientUsernames": ["evan.zhao", "leader.wang"]
+}
+```
+
+**字段说明:**
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| title | string | 是 | 通知标题，最多 200 字符 |
+| body | string | 是 | 通知正文，最多 2000 字符 |
+| level | string | 否 | `info` / `success` / `warning` / `error`，默认 `info` |
+| sourceSystem | string | 否 | 来源系统，默认 `unicomm` |
+| sourceType | string | 否 | 来源业务类型，例如 `memo`、`workflow` |
+| sourceId | string | 否 | 来源业务 ID |
+| targetUrl | string | 否 | 业务跳转目标 |
+| recipientUsernames | string[] | 是 | 接收人用户名列表 |
+
+创建成功后服务端会写入 `uni_notification` 和 `uni_notification_recipient`，并通过 WebSocket 推送：
+
+```json
+{
+  "module": "notify",
+  "type": "notification.created",
+  "recipientUsernames": ["evan.zhao"],
+  "notificationId": 1001,
+  "title": "审批任务已更新",
+  "body": "采购申请 PA-20260628 已进入复核节点",
+  "level": "info"
+}
+```
+
+#### 查询当前用户通知
+
+**接口:** `GET /api/v1/notifications?page=1&size=50&unreadOnly=false`
+
+返回 `PageResult<NotificationResponse>`。桌面端通知中心使用该接口拉取历史通知和已读状态。
+
+#### 标记已读
+
+| 接口 | 说明 |
+|------|------|
+| `PATCH /api/v1/notifications/{id}/read` | 标记当前用户的一条通知已读 |
+| `PATCH /api/v1/notifications/read-all` | 标记当前用户全部通知已读 |
+
+---
+
 ### 2.5 删除 Memo（逻辑删除）
 
 **接口:** `DELETE /api/v1/memos/{id}`
