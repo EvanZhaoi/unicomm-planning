@@ -43,10 +43,8 @@ src/
 │   │   └── index.ts             # 导出
 │   │
 │   └── runtime/                 # Desktop Runtime（第三优先级）
-│       ├── tray.ts               # 托盘管理
-│       ├── window.ts             # 窗口生命周期
-│       ├── notification.ts        # 桌面通知
-│       ├── updater.ts            # 自动更新
+│       ├── notification.ts        # 桌面通知触发
+│       ├── shortcut.ts            # 全局快捷键触发
 │       └── index.ts
 │
 ├── shared/                       # 共享层（可选过渡）
@@ -56,8 +54,7 @@ src/
 │   ├── adapter/                  # 桌面适配层
 │   │   ├── api/                   # Tauri API 抽象
 │   │   │   ├── invoke.ts          # invoke 封装
-│   │   │   ├── notify.ts          # 通知
-│   │   │   └── tray.ts            # 托盘
+│   │   │   └── notify.ts          # 通知
 │   │   └── index.ts
 │   │
 │   └── runtime/                  # 运行时能力
@@ -82,6 +79,8 @@ src/
 └── services/                      # 旧代码迁移后删除
     └── request.ts
 ```
+
+托盘、窗口生命周期、简易窗口打开和系统通知点击跳转由 Tauri Rust 侧统一维护；前端 runtime/adapter 只做业务入口和 `invoke` 调用，不再维护独立的 JS 托盘或窗口管理器。
 
 ---
 
